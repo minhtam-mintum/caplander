@@ -1,4 +1,4 @@
-import type { Task } from '../store/slices/tasksSlice'
+import type { Task } from 'app/store/slices/tasksSlice'
 
 function rand(seed: number): number {
   const x = Math.sin(seed + 1) * 10000

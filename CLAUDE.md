@@ -10,6 +10,12 @@
 - Component `UserCard` → `IUserCardProps`
 - Component `LoginForm` → `ILoginFormProps`
 
+## Import Conventions
+
+- ALWAYS use absolute imports with the `app/*` alias instead of relative parent imports (`../`).
+- NEVER use `../` to traverse up directories. Same-folder imports with `./` are allowed.
+- This keeps import paths stable when files are moved and improves readability.
+
 ### Correct
 \`\`\`tsx
 interface IButtonProps {
@@ -18,6 +24,10 @@ interface IButtonProps {
 }
 
 const Button = ({ label, onClick }: IButtonProps) => { ... };
+
+import { Button } from 'app/components/Button';
+import { useAuth } from 'app/hooks/useAuth';
+import { formatDate } from './utils'; // same folder is OK
 \`\`\`
 
 ### Incorrect
@@ -25,4 +35,7 @@ const Button = ({ label, onClick }: IButtonProps) => { ... };
 type ButtonProps = { ... };      // ❌ uses `type` and missing `I` prefix
 interface ButtonPropsType { ... } // ❌ wrong pattern
 interface IButton { ... }         // ❌ missing `Props` suffix
+
+import { Button } from '../../components/Button';   // ❌ uses ../
+import { useAuth } from '../../../hooks/useAuth';   // ❌ uses ../
 \`\`\`

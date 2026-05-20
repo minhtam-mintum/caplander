@@ -1,6 +1,6 @@
-import { CalendarEvent } from '../types/event';
-import type { WeekStart } from './calendar';
-import { toDateStr } from './calendar';
+import { CalendarEvent } from 'app/types/event';
+import type { WeekStart } from 'app/utils/calendar';
+import { toDateStr } from 'app/utils/calendar';
 
 export const HOUR_HEIGHT = 64; // px per hour
 export const START_HOUR = 8;

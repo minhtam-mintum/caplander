@@ -1,5 +1,5 @@
-import type { DayCalendarEvent } from '../types/event'
-import { dayToDateStr } from './week'
+import type { DayCalendarEvent } from 'app/types/event'
+import { dayToDateStr } from 'app/utils/week'
 
 export const DAY_HOUR_HEIGHT = 80   // px — taller rows than week view
 export const DAY_START_HOUR = 8

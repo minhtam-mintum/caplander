@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import { generateSeedTasks } from '../../utils/seedData'
+import { generateSeedTasks } from 'app/utils/seedData'
 
 export interface Task {
   id: string

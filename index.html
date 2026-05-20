@@ -2,11 +2,65 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./src/assets/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Caplander</title>
+    <link rel="preload" href="/geist-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <style>
+      @font-face {
+        font-family: 'Geist Variable';
+        font-style: normal;
+        font-display: block;
+        font-weight: 100 900;
+        src: url('/geist-latin.woff2') format('woff2-variations');
+      }
+      body { font-family: 'Geist Variable', system-ui, sans-serif; }
+      #splash {
+        position: fixed;
+        inset: 0;
+        background: #f7f9fb;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        font-family: 'Geist Variable', system-ui, sans-serif;
+        z-index: 9999;
+      }
+      #splash img { width: 80px; height: 80px; }
+      #splash span {
+        color: #1f108e;
+        font-weight: 700;
+        font-size: 2.25rem;
+        letter-spacing: -0.015em;
+      }
+      #splash-track {
+        width: 192px;
+        height: 2px;
+        background: #e6e8ea;
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+      #splash-bar {
+        height: 100%;
+        background: #1f108e;
+        border-radius: 9999px;
+        transform-origin: left center;
+        animation: splash-bar 1.4s ease-in-out infinite;
+      }
+      @keyframes splash-bar {
+        0%   { transform: translateX(-100%) scaleX(0.3); }
+        50%  { transform: translateX(0%)    scaleX(0.6); }
+        100% { transform: translateX(100%)  scaleX(0.3); }
+      }
+    </style>
   </head>
   <body>
+    <div id="splash">
+      <img src="/logo.png" alt="Caplander" />
+      <span>Caplander</span>
+      <div id="splash-track"><div id="splash-bar"></div></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
