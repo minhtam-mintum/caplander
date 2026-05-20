@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { MonthCalendar } from 'app/components/molecules/MonthCalendar';
 import { NavigationControls } from 'app/components/molecules/NavigationControls';
+import { EventModal } from 'app/components/organisms/EventModal';
 import { MONTH_NAMES } from 'app/utils/calendar';
 import type { RootState } from 'app/store';
 
@@ -9,9 +10,10 @@ export function MonthView() {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const tasks = useSelector((state: RootState) => state.tasks.items);
 
-  const taskCountByDate = useMemo(() => {
+  const countByDate = useMemo(() => {
     const map: Record<string, number> = {};
     for (const task of tasks) {
       map[task.date] = (map[task.date] ?? 0) + 1;
@@ -39,6 +41,12 @@ export function MonthView() {
 
   return (
     <main className='max-w-360 mx-auto px-margin py-lg'>
+      <EventModal
+        isOpen={selectedDate !== null}
+        onClose={() => setSelectedDate(null)}
+        initialData={selectedDate ? { date: selectedDate } : undefined}
+        onSave={() => setSelectedDate(null)}
+      />
       <div className='flex items-end justify-between mb-6'>
         <div>
           <h2 className='text-headline-lg text-on-surface'>
@@ -53,8 +61,9 @@ export function MonthView() {
         classDayLabel='text-body-lg'
         year={year}
         month={month}
-        taskCountByDate={taskCountByDate}
+        countByDate={countByDate}
         labelFormat='full'
+        onDayClick={setSelectedDate}
       />
     </main>
   );

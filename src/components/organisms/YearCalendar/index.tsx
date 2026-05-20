@@ -3,13 +3,13 @@ import { NavigationControls } from 'app/components/molecules/NavigationControls'
 
 interface IYearCalendarProps {
   year: number
-  taskCountByDate?: Record<string, number>
+  countByDate?: Record<string, number>
   onPrevYear: () => void
   onNextYear: () => void
   onToday: () => void
 }
 
-export function YearCalendar({ year, taskCountByDate = {}, onPrevYear, onNextYear, onToday }: IYearCalendarProps) {
+export function YearCalendar({ year, countByDate = {}, onPrevYear, onNextYear, onToday }: IYearCalendarProps) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-end justify-between">
@@ -25,7 +25,7 @@ export function YearCalendar({ year, taskCountByDate = {}, onPrevYear, onNextYea
             key={month}
             year={year}
             month={month}
-            taskCountByDate={taskCountByDate}
+            countByDate={countByDate}
             labelFormat='short'
           />
         ))}

@@ -7,7 +7,7 @@ export function YearView() {
   const [year, setYear] = useState(new Date().getFullYear());
   const tasks = useSelector((state: RootState) => state.tasks.items);
 
-  const taskCountByDate = useMemo(() => {
+  const countByDate = useMemo(() => {
     const map: Record<string, number> = {};
     for (const task of tasks) {
       map[task.date] = (map[task.date] ?? 0) + 1;
@@ -19,7 +19,7 @@ export function YearView() {
     <main className='max-w-360 mx-auto px-margin py-lg'>
       <YearCalendar
         year={year}
-        taskCountByDate={taskCountByDate}
+        countByDate={countByDate}
         onPrevYear={() => setYear((y) => y - 1)}
         onNextYear={() => setYear((y) => y + 1)}
         onToday={() => setYear(new Date().getFullYear())}

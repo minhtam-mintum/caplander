@@ -1,8 +1,9 @@
 interface ICalendarDayCellProps {
   day: number
-  taskCount?: number
+  count?: number
   isToday?: boolean
   isEmpty?: boolean
+  onClick?: () => void
 }
 
 function heatmapClass(count: number): { bg: string; text: string } {
@@ -14,17 +15,20 @@ function heatmapClass(count: number): { bg: string; text: string } {
   return { bg: 'bg-primary', text: 'text-on-primary' }
 }
 
-export function CalendarDayCell({ day, taskCount = 0, isToday = false, isEmpty = false }: ICalendarDayCellProps) {
+export function CalendarDayCell({ day, count = 0, isToday = false, isEmpty = false, onClick }: ICalendarDayCellProps) {
   if (isEmpty) return <div />
 
   const { bg, text } = isToday
     ? { bg: 'bg-primary', text: 'text-on-primary' }
-    : heatmapClass(taskCount)
+    : heatmapClass(count)
 
-  const hasDot = !isToday && taskCount > 0
+  const hasDot = !isToday && count > 0
 
   return (
-    <div className={`relative flex flex-col items-center justify-center aspect-square rounded-sm ${bg}`}>
+    <div
+      onClick={onClick}
+      className={`relative flex flex-col items-center justify-center aspect-square rounded-sm ${bg} ${onClick ? 'cursor-pointer hover:ring-2 hover:ring-primary/40 transition-shadow' : ''}`}
+    >
       <span className={`text-label-sm leading-none ${text} ${isToday ? 'font-bold' : ''}`}>{day}</span>
       {hasDot && (
         <span className="absolute bottom-0.5 w-1 h-1 rounded-full bg-primary/40" />

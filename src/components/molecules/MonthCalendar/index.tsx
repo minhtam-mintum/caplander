@@ -15,23 +15,25 @@ import { cn } from 'app/utils/cn';
 interface IMonthCalendarProps {
   year: number;
   month: number;
-  taskCountByDate?: Record<string, number>;
+  countByDate?: Record<string, number>;
   labelFormat?: DayLabelFormat;
   weekStart?: WeekStart;
   classDayLabel?: string;
   classMonthName?: string;
   hasMonthName?: boolean;
+  onDayClick?: (dateStr: string) => void;
 }
 
 export function MonthCalendar({
   year,
   month,
-  taskCountByDate = {},
+  countByDate = {},
   labelFormat = 'min',
   weekStart,
   classDayLabel,
   classMonthName,
   hasMonthName = true,
+  onDayClick,
 }: IMonthCalendarProps) {
   const dayLabels = getDayLabels(labelFormat, weekStart);
   const daysInMonth = getDaysInMonth(year, month);
@@ -60,8 +62,9 @@ export function MonthCalendar({
             <CalendarDayCell
               key={i}
               day={cell.day}
-              taskCount={taskCountByDate[toDateStr(year, month, cell.day)] ?? 0}
+              count={countByDate[toDateStr(year, month, cell.day)] ?? 0}
               isToday={isToday(year, month, cell.day)}
+              onClick={onDayClick ? () => onDayClick(toDateStr(year, month, cell.day!)) : undefined}
             />
           ),
         )}
