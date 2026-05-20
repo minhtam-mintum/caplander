@@ -1,3 +1,4 @@
+import { forwardRef, useImperativeHandle, useLayoutEffect, useState } from 'react'
 import type { DayCalendarEvent } from 'app/types/event'
 import {
   DAY_END_HOUR,
@@ -5,48 +6,47 @@ import {
   DAY_START_HOUR,
   dayDurationToHeight,
   dayTimeToOffset,
-  formatFullDate,
   formatHour24,
   generateDaySeedEvents,
   getDayCurrentOffset,
-  getDayTitle,
 } from 'app/utils/day'
 import { dayToDateStr } from 'app/utils/week'
-import { NavigationControls } from 'app/components/molecules/NavigationControls'
 import { DayEventCard } from 'app/components/molecules/DayEventCard'
 
 const HOURS = Array.from({ length: DAY_END_HOUR - DAY_START_HOUR }, (_, i) => DAY_START_HOUR + i)
 const TOTAL_HEIGHT = HOURS.length * DAY_HOUR_HEIGHT
 
-interface IDayCalendarProps {
-  date: Date
-  events?: DayCalendarEvent[]
-  onPrevDay: () => void
-  onNextDay: () => void
-  onToday: () => void
+export interface IDayCalendarHandle {
+  prev: () => void;
+  next: () => void;
+  goToday: () => void;
 }
 
-export function DayCalendar({ date, events, onPrevDay, onNextDay, onToday }: IDayCalendarProps) {
-  const resolvedEvents = events ?? generateDaySeedEvents(date)
-  const todayStr = dayToDateStr(new Date())
-  const dateStr = dayToDateStr(date)
-  const isToday = dateStr === todayStr
-  const currentOffset = getDayCurrentOffset()
+interface IDayCalendarProps {
+  events?: DayCalendarEvent[];
+  onDateChange?: (date: Date) => void;
+}
 
-  return (
-    <div className='flex flex-col gap-6'>
-      {/* Header */}
-      <div className='flex items-start justify-between'>
-        <div>
-          <h1 className='text-headline-xl text-on-surface'>{getDayTitle(date)}</h1>
-          <p className='text-body-lg text-on-surface-variant'>{formatFullDate(date)}</p>
-        </div>
-        <NavigationControls onPrev={onPrevDay} onNext={onNextDay} onToday={onToday} />
-      </div>
+export const DayCalendar = forwardRef<IDayCalendarHandle, IDayCalendarProps>(
+  function DayCalendar({ events, onDateChange }, ref) {
+    const [date, setDate] = useState(new Date())
 
-      {/* Time grid */}
+    useImperativeHandle(ref, () => ({
+      prev:    () => setDate((d) => { const n = new Date(d); n.setDate(d.getDate() - 1); return n }),
+      next:    () => setDate((d) => { const n = new Date(d); n.setDate(d.getDate() + 1); return n }),
+      goToday: () => setDate(new Date()),
+    }), [])
+
+    useLayoutEffect(() => { onDateChange?.(date) }, [date, onDateChange])
+
+    const resolvedEvents = events ?? generateDaySeedEvents(date)
+    const todayStr = dayToDateStr(new Date())
+    const dateStr = dayToDateStr(date)
+    const isToday = dateStr === todayStr
+    const currentOffset = getDayCurrentOffset()
+
+    return (
       <div className='relative flex'>
-        {/* Time labels column */}
         <div className='w-16 shrink-0'>
           {HOURS.map((h) => (
             <div key={h} className='flex items-start justify-end pr-3 pt-1' style={{ height: DAY_HOUR_HEIGHT }}>
@@ -55,9 +55,7 @@ export function DayCalendar({ date, events, onPrevDay, onNextDay, onToday }: IDa
           ))}
         </div>
 
-        {/* Grid lines + events */}
         <div className='flex-1 relative border-t border-outline-variant/40'>
-          {/* Hour rows with dashed lines + dots */}
           {HOURS.map((h) => (
             <div
               key={h}
@@ -68,7 +66,6 @@ export function DayCalendar({ date, events, onPrevDay, onNextDay, onToday }: IDa
             </div>
           ))}
 
-          {/* Events layer */}
           <div className='absolute inset-0'>
             {resolvedEvents.map((event) => (
               <DayEventCard
@@ -79,7 +76,6 @@ export function DayCalendar({ date, events, onPrevDay, onNextDay, onToday }: IDa
               />
             ))}
 
-            {/* Current time indicator */}
             {isToday && currentOffset >= 0 && currentOffset <= TOTAL_HEIGHT && (
               <div
                 className='absolute inset-x-0 flex items-center pointer-events-none z-10'
@@ -92,6 +88,6 @@ export function DayCalendar({ date, events, onPrevDay, onNextDay, onToday }: IDa
           </div>
         </div>
       </div>
-    </div>
-  )
-}
+    )
+  }
+)

@@ -1,26 +1,27 @@
-import { useState } from 'react'
-import { WeekCalendar } from 'app/components/organisms/WeekCalendar'
+import { useCallback, useRef, useState } from 'react';
+import { WeekCalendar, type IWeekCalendarHandle } from 'app/components/organisms/WeekCalendar';
+import { Toolbar } from 'app/components/molecules/Toolbar';
+import { formatWeekRange, getWeekDays } from 'app/utils/week';
+
+const WEEK_START = 1 as const;
 
 export function WeekView() {
-  const [refDate, setRefDate] = useState(new Date())
+  const calendarRef = useRef<IWeekCalendarHandle>(null);
+  const [weekDays, setWeekDays] = useState(() => getWeekDays(new Date(), WEEK_START));
 
-  function prevWeek() {
-    setRefDate((d) => { const n = new Date(d); n.setDate(d.getDate() - 7); return n })
-  }
-
-  function nextWeek() {
-    setRefDate((d) => { const n = new Date(d); n.setDate(d.getDate() + 7); return n })
-  }
+  const onPrev  = useCallback(() => calendarRef.current?.prev(), []);
+  const onNext  = useCallback(() => calendarRef.current?.next(), []);
+  const onToday = useCallback(() => calendarRef.current?.goToday(), []);
 
   return (
-    <main className='max-w-360 mx-auto px-margin py-lg'>
-      <WeekCalendar
-        refDate={refDate}
-        onPrevWeek={prevWeek}
-        onNextWeek={nextWeek}
-        onToday={() => setRefDate(new Date())}
-        onFilter={() => {}}
+    <main className='max-w-360 mx-auto px-margin py-lg flex flex-col gap-4'>
+      <Toolbar
+        title={<h2 className='text-headline-md text-on-surface'>{formatWeekRange(weekDays)}</h2>}
+        onPrev={onPrev}
+        onNext={onNext}
+        onToday={onToday}
       />
+      <WeekCalendar ref={calendarRef} onWeekChange={setWeekDays} />
     </main>
-  )
+  );
 }
