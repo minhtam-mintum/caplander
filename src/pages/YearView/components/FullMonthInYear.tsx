@@ -5,7 +5,7 @@ export interface IFullMonthInYearHandle {
   onSetYear: (newYear: number) => void;
   /** Resets the displayed year back to `defaultYear` (falls back to the current year if `defaultYear` was not provided). */
   onResetYear: VoidFunction;
-  year: number;
+  getYear: VoidFunction;
 }
 
 interface IFullMonthInYearProps {
@@ -15,7 +15,10 @@ interface IFullMonthInYearProps {
 }
 
 export const FullMonthInYear = forwardRef<IFullMonthInYearHandle, IFullMonthInYearProps>(
-  function FullMonthInYear({ countByDate = {}, defaultYear = new Date().getFullYear(), onDaySelect }, ref) {
+  function FullMonthInYear(
+    { countByDate = {}, defaultYear = new Date().getFullYear(), onDaySelect },
+    ref,
+  ) {
     const yearCursor = useRef(defaultYear);
     const [, forceUpdate] = useState(0);
 
@@ -33,18 +36,19 @@ export const FullMonthInYear = forwardRef<IFullMonthInYearHandle, IFullMonthInYe
           yearCursor.current = defaultYear;
           forceUpdate((n) => n + 1);
         },
-        year,
+        getYear: () => {
+          return yearCursor.current;
+        },
       }),
-      [year],
+      [],
     );
 
     return (
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='grid grid-cols-4 gap-4'>
         {Array.from({ length: 12 }, (_, month) => (
           <MonthCalendar
             key={month}
-            year={year}
-            month={month}
+            defaultDate={new Date(year, month)}
             countByDate={countByDate}
             labelFormat='short'
             onDayClick={onDaySelect}

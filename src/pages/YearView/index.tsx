@@ -7,7 +7,7 @@ import type { RootState } from 'app/store';
 import { ITitleYearPageHandle, TitleYearPage } from './components/Title';
 
 export function YearView() {
-  const defaultYear = new Date().getFullYear();
+  const defaultYear = useRef(new Date().getFullYear()).current;
   const yearRef = useRef<IFullMonthInYearHandle>(null);
   const modalRef = useRef<IEventModalHandle>(null);
   const titleRef = useRef<ITitleYearPageHandle>(null);
@@ -20,14 +20,14 @@ export function YearView() {
     }
     return map;
   }, [tasks]);
-  const handleSynce = (newYear: number) => {
+  const handleSync = (newYear: number) => {
     if (!yearRef.current || !titleRef.current) return;
     yearRef.current.onSetYear(newYear);
     titleRef.current.setYear(newYear);
   };
-  const handlePrev = () => handleSynce((yearRef.current?.year ?? defaultYear) - 1);
-  const handleNext = () => handleSynce((yearRef.current?.year ?? defaultYear) + 1);
-  const handleToday = () => handleSynce(defaultYear);
+  const handlePrev = () => handleSync((yearRef.current?.getYear() ?? defaultYear) - 1);
+  const handleNext = () => handleSync((yearRef.current?.getYear() ?? defaultYear) + 1);
+  const handleToday = () => handleSync(defaultYear);
   const handleDaySelect = (date: string) => modalRef.current?.open({ date });
 
   return (

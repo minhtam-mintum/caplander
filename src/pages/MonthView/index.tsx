@@ -1,11 +1,20 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import { Calendar } from 'app/components/organisms/Calendar';
-import { EventModal } from 'app/components/organisms/EventModal';
+import { EventModal, IEventModalHandle } from 'app/components/organisms/EventModal';
 import type { RootState } from 'app/store';
+import { Toolbar } from 'app/components/molecules/Toolbar';
+import { ITitleMonthPageHandle, TitleMonthPage } from './components/Title';
+import { IMonthCalendarHandle, MonthCalendar } from 'app/components/molecules/MonthCalendar';
+import { MONTH_NAMES } from 'app/utils/calendar';
+
+const formatTitle = (date: Date) => `${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
 
 export function MonthView() {
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const defaultDate = useRef(new Date()).current;
+  const monthRef = useRef<IMonthCalendarHandle>(null);
+  const modalRef = useRef<IEventModalHandle>(null);
+  const titleRef = useRef<ITitleMonthPageHandle>(null);
+  const dateCursor = useRef(defaultDate);
   const tasks = useSelector((state: RootState) => state.tasks.items);
 
   const countByDate = useMemo(() => {
@@ -16,16 +25,39 @@ export function MonthView() {
     return map;
   }, [tasks]);
 
-  const closeModal = useCallback(() => setSelectedDate(null), []);
+  const handleSync = (newDate: Date) => {
+    dateCursor.current = newDate;
+    monthRef.current?.updateDate(newDate);
+    titleRef.current?.setTitle(formatTitle(newDate));
+  };
+  const handlePrev = () => {
+    const d = new Date(dateCursor.current);
+    d.setMonth(d.getMonth() - 1);
+    handleSync(d);
+  };
+  const handleNext = () => {
+    const d = new Date(dateCursor.current);
+    d.setMonth(d.getMonth() + 1);
+    handleSync(d);
+  };
+  const handleToday = () => handleSync(new Date());
 
   return (
     <main className='max-w-360 mx-auto px-margin py-lg'>
-      <EventModal
-        isOpen={selectedDate !== null}
-        onClose={closeModal}
-        initialData={selectedDate ? { date: selectedDate } : undefined}
+      <EventModal ref={modalRef} />
+      <Toolbar
+        align='end'
+        title={<TitleMonthPage defaultTitle={formatTitle(defaultDate)} ref={titleRef} />}
+        onPrev={handlePrev}
+        onNext={handleNext}
+        onToday={handleToday}
       />
-      <Calendar view='month' countByDate={countByDate} />
+      <MonthCalendar
+        ref={monthRef}
+        defaultDate={defaultDate}
+        countByDate={countByDate}
+        onDayClick={(date) => modalRef.current?.open({ date })}
+      />
     </main>
   );
 }
