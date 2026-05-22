@@ -8,7 +8,7 @@ interface IDayLabelProps {
 export function DayLabel({ label, classDayLabel }: IDayLabelProps) {
   return (
     <div className='flex items-center justify-center aspect-square'>
-      <span className={cn('text-label-sm text-on-surface-variant', classDayLabel)}>{label}</span>
+      <span className={cn('text-label-sm @[320px]:text-label-md text-on-surface-variant', classDayLabel)}>{label}</span>
     </div>
   );
 }

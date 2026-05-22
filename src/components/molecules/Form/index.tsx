@@ -7,14 +7,16 @@ import {
   type Resolver,
   type SubmitHandler,
   useForm,
-  type UseFormReset,
+  UseFormReturn,
 } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import type { AnyObject, ObjectSchema } from 'yup';
 
-export interface IFormHandle<T extends FieldValues = FieldValues> {
-  reset: UseFormReset<T>;
-}
+export interface IFormHandle<T extends FieldValues = FieldValues> extends UseFormReturn<
+  T,
+  any,
+  T
+> {}
 
 interface IFormProps<T extends FieldValues> {
   schema: ObjectSchema<AnyObject>;
@@ -36,7 +38,7 @@ function FormInner<T extends FieldValues>(
     mode,
   });
 
-  useImperativeHandle(ref, () => ({ reset: methods.reset }), [methods.reset]);
+  useImperativeHandle(ref, () => ({ ...methods }), [methods]);
 
   return (
     <FormProvider {...methods}>

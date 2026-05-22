@@ -28,7 +28,7 @@ export function YearView() {
   const handlePrev = () => handleSync((yearRef.current?.getYear() ?? defaultYear) - 1);
   const handleNext = () => handleSync((yearRef.current?.getYear() ?? defaultYear) + 1);
   const handleToday = () => handleSync(defaultYear);
-  const handleDaySelect = (date: string) => modalRef.current?.open({ date });
+  const handleDaySelect = (date: string) => modalRef.current?.open();
 
   return (
     <main className='max-w-360 mx-auto px-margin py-lg flex flex-col gap-6'>

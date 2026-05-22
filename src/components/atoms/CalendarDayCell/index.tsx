@@ -2,6 +2,7 @@ interface ICalendarDayCellProps {
   day: number
   count?: number
   isToday?: boolean
+  isSelected?: boolean
   isEmpty?: boolean
   onClick?: () => void
 }
@@ -15,21 +16,24 @@ function heatmapClass(count: number): { bg: string; text: string } {
   return { bg: 'bg-primary', text: 'text-on-primary' }
 }
 
-export function CalendarDayCell({ day, count = 0, isToday = false, isEmpty = false, onClick }: ICalendarDayCellProps) {
+export function CalendarDayCell({ day, count = 0, isToday = false, isSelected = false, isEmpty = false, onClick }: ICalendarDayCellProps) {
   if (isEmpty) return <div />
 
   const { bg, text } = isToday
     ? { bg: 'bg-primary', text: 'text-on-primary' }
-    : heatmapClass(count)
+    : isSelected
+      ? { bg: 'bg-secondary-container', text: 'text-on-surface' }
+      : heatmapClass(count)
 
   const hasDot = !isToday && count > 0
+  const ringClass = isSelected && !isToday ? 'ring-2 ring-primary' : ''
 
   return (
     <div
       onClick={onClick}
-      className={`relative flex flex-col items-center justify-center aspect-square rounded-sm ${bg} ${onClick ? 'cursor-pointer hover:ring-2 hover:ring-primary/40 transition-shadow' : ''}`}
+      className={`relative flex flex-col items-center justify-center aspect-square rounded-sm ${bg} ${ringClass} ${onClick ? 'cursor-pointer hover:ring-2 hover:ring-primary/40 transition-shadow' : ''}`}
     >
-      <span className={`text-label-sm leading-none ${text} ${isToday ? 'font-bold' : ''}`}>{day}</span>
+      <span className={`text-label-sm @[320px]:text-label-md leading-none ${text} ${isToday ? 'font-bold' : ''}`}>{day}</span>
       {hasDot && (
         <span className="absolute bottom-0.5 w-1 h-1 rounded-full bg-primary/40" />
       )}

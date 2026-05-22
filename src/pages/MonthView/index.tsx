@@ -4,7 +4,10 @@ import { EventModal, IEventModalHandle } from 'app/components/organisms/EventMod
 import type { RootState } from 'app/store';
 import { Toolbar } from 'app/components/molecules/Toolbar';
 import { ITitleMonthPageHandle, TitleMonthPage } from './components/Title';
-import { IMonthCalendarHandle, MonthCalendar } from 'app/components/molecules/MonthCalendar';
+import {
+  IMonthCalendarHandle,
+  MonthCalendar,
+} from 'app/components/molecules/Calendar/MonthCalendar';
 import { MONTH_NAMES } from 'app/utils/calendar';
 
 const formatTitle = (date: Date) => `${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
@@ -53,10 +56,11 @@ export function MonthView() {
         onToday={handleToday}
       />
       <MonthCalendar
+        hasMonthName={false}
+        labelFormat='full'
         ref={monthRef}
         defaultDate={defaultDate}
         countByDate={countByDate}
-        onDayClick={(date) => modalRef.current?.open({ date })}
       />
     </main>
   );

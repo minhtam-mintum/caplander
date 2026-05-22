@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { MonthCalendar } from 'app/components/molecules/MonthCalendar';
+import { MonthCalendar } from 'app/components/molecules/Calendar/MonthCalendar';
 
 export interface IFullMonthInYearHandle {
   onSetYear: (newYear: number) => void;

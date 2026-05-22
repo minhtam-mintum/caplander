@@ -26,7 +26,7 @@ export const EventModal = forwardRef<IEventModalHandle, IEventModalProps>(functi
 ) {
   const [isOpen, setIsOpen] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
-const formRef = useRef<IFormHandle<EventFormData>>(null);
+  const formRef = useRef<IFormHandle<EventFormData>>(null);
 
   useImperativeHandle(
     ref,

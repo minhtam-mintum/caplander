@@ -18,6 +18,7 @@ export interface IMonthCalendarHandle {
 interface IMonthCalendarProps {
   defaultDate?: Date;
   countByDate?: Record<string, number>;
+  selectedDateStr?: string;
   labelFormat?: DayLabelFormat;
   weekStart?: WeekStart;
   classDayLabel?: string;
@@ -30,6 +31,7 @@ export const MonthCalendar = forwardRef<IMonthCalendarHandle, IMonthCalendarProp
     {
       defaultDate,
       countByDate = {},
+      selectedDateStr,
       labelFormat = 'min',
       weekStart,
       classDayLabel,
@@ -58,9 +60,9 @@ export const MonthCalendar = forwardRef<IMonthCalendarHandle, IMonthCalendarProp
     while (cells.length % 7 !== 0) cells.push({ day: null });
 
     return (
-      <div className='bg-surface-container-lowest rounded-lg p-3 flex flex-col gap-2'>
+      <div className='@container bg-surface-container-lowest rounded-lg p-3 flex flex-col gap-2'>
         {hasMonthName && (
-          <h3 className={cn('text-body-md font-semibold text-on-surface', classMonthName)}>
+          <h3 className={cn('text-body-md @[320px]:text-body-lg font-semibold text-on-surface', classMonthName)}>
             {MONTH_NAMES[month]}
           </h3>
         )}
@@ -77,6 +79,7 @@ export const MonthCalendar = forwardRef<IMonthCalendarHandle, IMonthCalendarProp
                 day={cell.day}
                 count={countByDate[toDateStr(year, month, cell.day)] ?? 0}
                 isToday={isToday(year, month, cell.day)}
+                isSelected={selectedDateStr === toDateStr(year, month, cell.day)}
                 onClick={
                   onDayClick ? () => onDayClick(toDateStr(year, month, cell.day!)) : undefined
                 }

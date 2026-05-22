@@ -1,8 +1,9 @@
 import { useFormContext } from 'react-hook-form';
-import { Bold, Bell, CalendarDays, Italic, Link2, List, Tag } from 'lucide-react';
+import { Bold, Bell, Clock, Italic, Link2, List, Tag } from 'lucide-react';
 import { Label } from 'app/components/atoms/Label';
 import { InputRHF } from 'app/components/molecules/Inputs/InputRHF';
 import { SelectRHF } from 'app/components/molecules/Selects/SelectRHF';
+import { DatePickerRHF } from 'app/components/molecules/DatePicker/DatePickerRHF';
 import type { EventFormData } from './const';
 import { ALERT_OPTIONS, LABEL_OPTIONS } from './const';
 
@@ -21,35 +22,40 @@ export function EventFields({ canEditAll }: IEventFieldsProps) {
       <InputRHF name='name' label='Name' disabled={!canEditAll} />
 
       <div className='grid grid-cols-2 gap-3'>
-        <div className='flex flex-col gap-1'>
-          <Label>Start</Label>
+        <div className='flex flex-col gap-2'>
+          <Label>Starts</Label>
+          <DatePickerRHF name='startDate' disabled={!canEditAll} />
           <div className='flex items-center gap-3 bg-surface-container-low rounded-xl px-4 py-3'>
-            <CalendarDays size={16} className='text-on-surface-variant shrink-0' />
+            <Clock size={16} className='text-on-surface-variant shrink-0' />
             <input
-              {...register('start')}
-              type='datetime-local'
+              {...register('startTime')}
+              type='time'
               disabled={!canEditAll}
               className='flex-1 bg-transparent outline-none text-body-md text-on-surface disabled:opacity-50'
             />
           </div>
         </div>
 
-        <div className='flex flex-col gap-1'>
-          <Label>End</Label>
+        <div className='flex flex-col gap-2'>
+          <Label>Ends</Label>
+          <DatePickerRHF name='endDate' disabled={!canEditAll} />
           <div className='flex items-center gap-3 bg-surface-container-low rounded-xl px-4 py-3'>
-            <CalendarDays size={16} className='text-on-surface-variant shrink-0' />
+            <Clock size={16} className='text-on-surface-variant shrink-0' />
             <input
-              {...register('end')}
-              type='datetime-local'
+              {...register('endTime')}
+              type='time'
               disabled={!canEditAll}
               className='flex-1 bg-transparent outline-none text-body-md text-on-surface disabled:opacity-50'
             />
           </div>
         </div>
       </div>
-      {(errors.start || errors.end) && (
+      {(errors.startDate || errors.startTime || errors.endDate || errors.endTime) && (
         <p className='text-label-sm text-error'>
-          {errors.end?.message ?? errors.start?.message}
+          {errors.endTime?.message ??
+            errors.endDate?.message ??
+            errors.startTime?.message ??
+            errors.startDate?.message}
         </p>
       )}
 
