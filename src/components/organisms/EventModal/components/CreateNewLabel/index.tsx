@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, Plus, Tag, X } from 'lucide-react';
 import { useSelectContext } from 'app/components/molecules/Selects/SelectRHF';
+import type { ILabel } from 'app/hooks/useLabels';
 
 const COLORS = [
   '#ef4444',
@@ -13,7 +14,11 @@ const COLORS = [
   '#14b8a6',
 ];
 
-export function CreateNewLabel() {
+interface ICreateNewLabelProps {
+  onAdd: (label: ILabel) => void;
+}
+
+export function CreateNewLabel({ onAdd }: ICreateNewLabelProps) {
   const { setItem, items } = useSelectContext();
   const [isAdding, setIsAdding] = useState(false);
   const [value, setValue] = useState('');
@@ -27,6 +32,8 @@ export function CreateNewLabel() {
   const handleConfirm = () => {
     const trimmed = value.trim();
     if (trimmed) {
+      const label: ILabel = { name: trimmed, value: trimmed, color };
+      onAdd(label);
       setItem([
         ...items,
         {

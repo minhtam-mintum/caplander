@@ -1,6 +1,7 @@
 import * as yup from 'yup';
 import { Tag } from 'lucide-react';
 import type { SelectItem } from 'app/components/molecules/Selects/SelectRHF';
+import type { ILabel } from 'app/hooks/useLabels';
 import { CreateNewLabel } from '../components/CreateNewLabel';
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
@@ -47,34 +48,23 @@ export type EventFormData = yup.InferType<typeof eventModalSchema>;
 
 // ─── Label options ────────────────────────────────────────────────────────────
 
-export const LABEL_COLORS = [
-  '#ef4444',
-  '#f97316',
-  '#eab308',
-  '#22c55e',
-  '#3b82f6',
-  '#8b5cf6',
-  '#ec4899',
-  '#14b8a6',
-];
-
-export function getLabelColor(label: string): string {
-  const hash = label.split('').reduce((sum, c) => sum + c.charCodeAt(0), 0);
-  return LABEL_COLORS[hash % LABEL_COLORS.length];
+export function buildLabelOptions(
+  labels: ILabel[],
+  onAdd: (label: ILabel) => void,
+): SelectItem[] {
+  return [
+    ...labels.map((l) => ({
+      option: (
+        <span className='flex items-center gap-2'>
+          <Tag size={12} style={{ color: l.color }} />
+          {l.name}
+        </span>
+      ),
+      value: l.value,
+    })),
+    { custom: <CreateNewLabel onAdd={onAdd} /> },
+  ];
 }
-
-export const LABEL_OPTIONS: SelectItem[] = [
-  ...['Work', 'Personal', 'Health', 'Learning', 'Other'].map((l) => ({
-    option: (
-      <span className='flex items-center gap-2'>
-        <Tag size={12} style={{ color: getLabelColor(l) }} />
-        {l}
-      </span>
-    ),
-    value: l.toLowerCase(),
-  })),
-  { custom: <CreateNewLabel /> },
-];
 
 // ─── Alert options ────────────────────────────────────────────────────────────
 

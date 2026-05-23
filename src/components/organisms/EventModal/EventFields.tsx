@@ -1,12 +1,13 @@
 import { useFormContext } from 'react-hook-form';
-import { Bold, Bell, Italic, Link2, List, Tag } from 'lucide-react';
+import { Bold, Bell, Italic, Link2, List } from 'lucide-react';
 import { Label } from 'app/components/atoms/Label';
 import { InputRHF } from 'app/components/molecules/Inputs/InputRHF';
 import { SelectRHF } from 'app/components/molecules/Selects/SelectRHF';
 import { GroupPeriodDate } from './components/GroupPeriodDate';
 import { GroupPeriodTime } from './components/GroupPeriodTime';
+import { LabelSelect } from './components/LabelSelect';
 import type { EventFormData } from './const';
-import { ALERT_OPTIONS, LABEL_OPTIONS } from './const';
+import { ALERT_OPTIONS } from './const';
 
 interface IEventFieldsProps {
   canEditAll: boolean;
@@ -33,13 +34,7 @@ export function EventFields({ canEditAll }: IEventFieldsProps) {
           disabled={!canEditAll}
         />
 
-        <SelectRHF
-          name='label'
-          label='Label'
-          options={LABEL_OPTIONS}
-          icon={<Tag size={15} />}
-          disabled={!canEditAll}
-        />
+        <LabelSelect disabled={!canEditAll} />
       </div>
 
       <div className='flex flex-col gap-2'>

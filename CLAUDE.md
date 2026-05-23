@@ -100,3 +100,43 @@ const Parent = () => {
   return <Child value={value} onChange={setValue} />;
 };
 \`\`\`
+
+### Extract stateful hooks into isolated child components
+- If a parent component calls a hook (or holds state) that is only consumed by ONE part of its JSX, extract that part into its own child component that owns the hook internally.
+- A hook sitting in a parent re-renders the ENTIRE parent subtree on every state change — even siblings that don't use that state.
+- This applies equally to custom hooks (`useLabels`, `useFilters`, `usePagination`, etc.) and plain `useState`/`useReducer`.
+
+#### Incorrect — hook in parent re-renders unrelated siblings
+\`\`\`tsx
+// ❌ useLabels state in EventFields → label add re-renders name input,
+// date pickers, time pickers, notes, and every other sibling
+function EventFields() {
+  const { labels, addLabel } = useLabels();
+  return (
+    <>
+      <InputRHF name='name' />
+      <SelectRHF name='label' options={buildLabelOptions(labels, addLabel)} />
+      {/* ...more fields that don't use labels at all */}
+    </>
+  );
+}
+\`\`\`
+
+#### Correct — hook lives only in the component that needs it
+\`\`\`tsx
+// ✅ Only LabelSelect re-renders when a label is added
+function LabelSelect({ disabled }: { disabled?: boolean }) {
+  const { labels, addLabel } = useLabels();
+  return <SelectRHF name='label' options={buildLabelOptions(labels, addLabel)} disabled={disabled} />;
+}
+
+function EventFields() {
+  return (
+    <>
+      <InputRHF name='name' />
+      <LabelSelect />
+      {/* ...siblings are unaffected by label state changes */}
+    </>
+  );
+}
+\`\`\`
