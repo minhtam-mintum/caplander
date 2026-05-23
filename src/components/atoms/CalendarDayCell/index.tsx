@@ -3,6 +3,7 @@ interface ICalendarDayCellProps {
   count?: number
   isToday?: boolean
   isSelected?: boolean
+  isDisabled?: boolean
   isEmpty?: boolean
   onClick?: () => void
 }
@@ -16,22 +17,24 @@ function heatmapClass(count: number): { bg: string; text: string } {
   return { bg: 'bg-primary', text: 'text-on-primary' }
 }
 
-export function CalendarDayCell({ day, count = 0, isToday = false, isSelected = false, isEmpty = false, onClick }: ICalendarDayCellProps) {
+export function CalendarDayCell({ day, count = 0, isToday = false, isSelected = false, isDisabled = false, isEmpty = false, onClick }: ICalendarDayCellProps) {
   if (isEmpty) return <div />
 
-  const { bg, text } = isToday
-    ? { bg: 'bg-primary', text: 'text-on-primary' }
-    : isSelected
-      ? { bg: 'bg-secondary-container', text: 'text-on-surface' }
-      : heatmapClass(count)
+  const { bg, text } = isDisabled
+    ? { bg: 'bg-surface-container-lowest', text: 'text-on-surface-variant' }
+    : isToday
+      ? { bg: 'bg-primary', text: 'text-on-primary' }
+      : isSelected
+        ? { bg: 'bg-secondary-container', text: 'text-on-surface' }
+        : heatmapClass(count)
 
-  const hasDot = !isToday && count > 0
+  const hasDot = !isToday && !isDisabled && count > 0
   const ringClass = isSelected && !isToday ? 'ring-2 ring-primary' : ''
 
   return (
     <div
-      onClick={onClick}
-      className={`relative flex flex-col items-center justify-center aspect-square rounded-sm ${bg} ${ringClass} ${onClick ? 'cursor-pointer hover:ring-2 hover:ring-primary/40 transition-shadow' : ''}`}
+      onClick={isDisabled ? undefined : onClick}
+      className={`relative flex flex-col items-center justify-center aspect-square rounded-sm ${bg} ${ringClass} ${isDisabled ? 'opacity-35 cursor-not-allowed' : onClick ? 'cursor-pointer hover:ring-2 hover:ring-primary/40 transition-shadow' : ''}`}
     >
       <span className={`text-label-sm @[320px]:text-label-md leading-none ${text} ${isToday ? 'font-bold' : ''}`}>{day}</span>
       {hasDot && (

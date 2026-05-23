@@ -10,6 +10,7 @@ interface IDatePickerRHFProps {
   label?: string;
   disabled?: boolean;
   placeholder?: string;
+  minDate?: string;
 }
 
 function formatDisplayDate(dateStr: string): string {
@@ -22,6 +23,7 @@ export function DatePickerRHF({
   label,
   disabled,
   placeholder = 'Select date',
+  minDate,
 }: IDatePickerRHFProps) {
   const { control } = useFormContext();
   const { field } = useController({ control, name });
@@ -74,7 +76,7 @@ export function DatePickerRHF({
         <div className='absolute top-full left-0 mt-1 z-20 shadow-lg rounded-xl overflow-hidden bg-surface-container-lowest border border-outline-variant p-3 w-80'>
           <Calendar
             defaultDate={defaultDate}
-            selectedDateStr={field.value}
+            minDate={minDate}
             onDayClick={handleDayClick}
           />
         </div>

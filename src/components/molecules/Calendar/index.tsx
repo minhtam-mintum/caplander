@@ -8,11 +8,11 @@ import { MONTH_NAMES } from 'app/utils/calendar';
 
 interface ICalendarProps {
   defaultDate?: Date;
-  selectedDateStr?: string;
+  minDate?: string;
   onDayClick?: (dateStr: string) => void;
 }
 
-export function Calendar({ defaultDate, selectedDateStr, onDayClick }: ICalendarProps) {
+export function Calendar({ defaultDate, minDate, onDayClick }: ICalendarProps) {
   const [viewDate, setViewDate] = useState(defaultDate ?? new Date());
   const calendarRef = useRef<IMonthCalendarHandle>(null);
 
@@ -58,7 +58,7 @@ export function Calendar({ defaultDate, selectedDateStr, onDayClick }: ICalendar
         hasMonthName={false}
         defaultDate={defaultDate}
         labelFormat='short'
-        selectedDateStr={selectedDateStr}
+        minDate={minDate}
         onDayClick={onDayClick}
       />
     </div>

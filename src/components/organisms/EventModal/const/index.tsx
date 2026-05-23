@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { Tag } from 'lucide-react';
 import type { SelectItem } from 'app/components/molecules/Selects/SelectRHF';
-import { CreateNewLabel } from '../CreateNewLabel';
+import { CreateNewLabel } from '../components/CreateNewLabel';
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
@@ -15,7 +15,14 @@ export const eventModalSchema = yup.object({
   name: yup.string().required('Name is required'),
   startDate: yup.string().required('Start date is required'),
   startTime: yup.string().required('Start time is required'),
-  endDate: yup.string().required('End date is required'),
+  endDate: yup
+    .string()
+    .required('End date is required')
+    .test('end-date-not-before-start', 'End date must be on or after start date', function (val) {
+      const { startDate } = this.parent as { startDate: string };
+      if (!startDate || !val) return true;
+      return val >= startDate;
+    }),
   endTime: yup
     .string()
     .required('End time is required')
