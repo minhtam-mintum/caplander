@@ -27,8 +27,9 @@ export function DatePickerRHF({
 }: IDatePickerRHFProps) {
   const { control } = useFormContext();
   const { field } = useController({ control, name });
-  const { errors } = useFormState({ name });
-  const errorMessage = errors[name]?.message as string | undefined;
+  const { errors, touchedFields, isSubmitted } = useFormState({ name });
+  const errorMessage =
+    (touchedFields[name] || isSubmitted) ? (errors[name]?.message as string | undefined) : undefined;
 
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -36,11 +37,14 @@ export function DatePickerRHF({
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e: MouseEvent) => {
-      if (!containerRef.current?.contains(e.target as Node)) setIsOpen(false);
+      if (!containerRef.current?.contains(e.target as Node)) {
+        setIsOpen(false);
+        field.onBlur();
+      }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [isOpen]);
+  }, [isOpen, field.onBlur]);
 
   const handleDayClick = useCallback(
     (dateStr: string) => {

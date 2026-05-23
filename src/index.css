@@ -145,6 +145,11 @@
   transform-origin: left center;
 }
 
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
 @layer base {
   *, *::before, *::after {
     box-sizing: border-box;
