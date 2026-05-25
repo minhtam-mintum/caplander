@@ -1,6 +1,7 @@
 import { type ReactNode, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { DismissButton } from 'app/components/molecules/Buttons/DismissButton';
 import { cn } from 'app/utils/cn';
 import { lockScroll, unlockScroll } from 'app/utils/scrollLock';
 
@@ -38,12 +39,9 @@ export function Modal({ isOpen, onClose, children, className, header, footer }: 
           <>
             <div className='flex items-center gap-3 px-6 py-5'>
               {header}
-              <button
-                type='button'
-                onClick={onClose}
-                className='p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors'>
+              <DismissButton type='button' onClick={onClose}>
                 <X size={18} />
-              </button>
+              </DismissButton>
             </div>
             <div className='h-px bg-outline-variant' />
           </>

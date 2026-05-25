@@ -3,6 +3,7 @@ import { CalendarDays } from 'lucide-react';
 import { Modal } from 'app/components/molecules/Modal';
 import { Form, type IFormHandle } from 'app/components/molecules/Form';
 import { ButtonRHF } from 'app/components/molecules/Buttons/ButtonRHF';
+import { CancelButton } from 'app/components/molecules/Buttons/CancelButton';
 import { useEvents } from 'app/hooks/useEvents';
 import { eventModalSchema, type EventFormData } from './const';
 import { EventFields } from './EventFields';
@@ -95,12 +96,9 @@ export const EventModal = forwardRef<IEventModalHandle, IEventModalProps>(functi
           isDetail && !isEditing ? undefined : (
             <div className='flex justify-end gap-2 w-full'>
               {isEditing && (
-                <button
-                  type='button'
-                  onClick={() => setIsEditing(false)}
-                  className='px-4 py-2 rounded-xl text-body-md text-on-surface-variant hover:bg-surface-container transition-colors'>
+                <CancelButton type='button' onClick={() => setIsEditing(false)}>
                   Cancel
-                </button>
+                </CancelButton>
               )}
               <ButtonRHF
                 form={formId}

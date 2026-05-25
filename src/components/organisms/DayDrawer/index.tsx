@@ -2,6 +2,8 @@ import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'r
 import { createPortal } from 'react-dom';
 import { ChevronRight, Plus, X } from 'lucide-react';
 import type { IEvent } from 'app/hooks/useEvents';
+import { DismissButton } from 'app/components/molecules/Buttons/DismissButton';
+import { DashedButton } from 'app/components/molecules/Buttons/DashedButton';
 import { MONTH_NAMES } from 'app/utils/calendar';
 import { lockScroll, unlockScroll } from 'app/utils/scrollLock';
 
@@ -85,12 +87,9 @@ export const DayDrawer = forwardRef<IDayDrawerHandle, IDayDrawerProps>(function 
           <span className='text-body-md font-semibold text-on-surface-variant'>
             {date ? formatHeaderDate(date) : ''}
           </span>
-          <button
-            type='button'
-            onClick={() => setDate(null)}
-            className='p-1.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors'>
+          <DismissButton type='button' onClick={() => setDate(null)}>
             <X size={18} />
-          </button>
+          </DismissButton>
         </div>
         <div className='h-px bg-outline-variant' />
 
@@ -98,13 +97,10 @@ export const DayDrawer = forwardRef<IDayDrawerHandle, IDayDrawerProps>(function 
           {dayEvents.map((event) => (
             <EventItem key={event.id} event={event} onClick={() => onEventClick(event)} />
           ))}
-          <button
-            type='button'
-            onClick={() => date && onAddEvent(date)}
-            className='flex items-center justify-center gap-2 w-full py-4 rounded-xl border-2 border-dashed border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors text-body-sm'>
+          <DashedButton type='button' onClick={() => date && onAddEvent(date)}>
             <Plus size={16} />
             Add Event
-          </button>
+          </DashedButton>
         </div>
       </div>
     </>,

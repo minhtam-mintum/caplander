@@ -48,10 +48,7 @@ export type EventFormData = yup.InferType<typeof eventModalSchema>;
 
 // ─── Label options ────────────────────────────────────────────────────────────
 
-export function buildLabelOptions(
-  labels: ILabel[],
-  onAdd: (label: ILabel) => void,
-): SelectItem[] {
+export function buildLabelOptions(labels: ILabel[], onAdd: (label: ILabel) => void): SelectItem[] {
   return [
     ...labels.map((l) => ({
       option: (

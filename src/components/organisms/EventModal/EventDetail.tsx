@@ -1,24 +1,8 @@
 import { Bell, Clock, Pencil, Tag } from 'lucide-react';
-import { useFormContext } from 'react-hook-form';
 import { useLabels } from 'app/hooks/useLabels';
-import { MONTH_NAMES } from 'app/utils/calendar';
+import { OutlineButton } from 'app/components/molecules/Buttons/OutlineButton';
+import { formatDetailDate, formatTime } from 'app/utils/calendar';
 import { ALERT_OPTIONS, type EventFormData } from './const';
-
-const WEEKDAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-function formatTime(ms: number): string {
-  const h = String(Math.floor(ms / 3600000)).padStart(2, '0');
-  const m = String(Math.floor((ms % 3600000) / 60000)).padStart(2, '0');
-  return `${h}:${m}`;
-}
-
-function formatDetailDate(date: Date): string {
-  const weekday = WEEKDAY_NAMES[date.getUTCDay()];
-  const month = MONTH_NAMES[date.getUTCMonth()].slice(0, 3);
-  const day = date.getUTCDate();
-  const year = date.getUTCFullYear();
-  return `${weekday}, ${month} ${day}, ${year}`;
-}
 
 interface IEventDetailProps {
   onEdit: () => void;
@@ -102,13 +86,10 @@ export function EventDetail({ onEdit, data }: IEventDetailProps) {
         </div>
       )}
 
-      <button
-        type='button'
-        onClick={onEdit}
-        className='flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-outline-variant text-body-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors'>
+      <OutlineButton type='button' onClick={onEdit}>
         <Pencil size={14} />
         Edit
-      </button>
+      </OutlineButton>
     </div>
   );
 }

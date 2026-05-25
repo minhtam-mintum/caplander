@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useController, useFormContext, useFormState } from 'react-hook-form';
 import { CalendarDays } from 'lucide-react';
+import { ButtonField } from 'app/components/molecules/Buttons/ButtonField';
 import { Calendar } from 'app/components/molecules/Calendar';
 import { Label } from 'app/components/atoms/Label';
 import { MONTH_NAMES } from 'app/utils/calendar';
@@ -59,19 +60,20 @@ export function DatePickerRHF({
     <div ref={containerRef} className='flex flex-col gap-1 relative'>
       {label && <Label htmlFor={name}>{label}</Label>}
 
-      <button
+      <ButtonField
         id={name}
+        variant='field-trigger'
         type='button'
         disabled={disabled}
         onClick={() => !disabled && setIsOpen((o) => !o)}
-        className='flex items-center gap-3 bg-surface-container-low rounded-xl px-4 py-3 text-body-md text-on-surface w-full disabled:opacity-50 disabled:cursor-default'>
+        className='bg-surface-container-low w-full'>
         <CalendarDays size={16} className='text-on-surface-variant shrink-0' />
         {field.value instanceof Date ? (
           <span className='flex-1 text-left'>{formatDisplayDate(field.value)}</span>
         ) : (
           <span className='flex-1 text-left text-on-surface-variant/50'>{placeholder}</span>
         )}
-      </button>
+      </ButtonField>
 
       {errorMessage && <p className='text-label-sm text-error'>{errorMessage}</p>}
 

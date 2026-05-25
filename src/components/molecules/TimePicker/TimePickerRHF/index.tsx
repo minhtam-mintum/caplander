@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useController, useFormContext, useFormState } from 'react-hook-form';
 import { Clock } from 'lucide-react';
+import { ButtonField } from 'app/components/molecules/Buttons/ButtonField';
 import { Label } from 'app/components/atoms/Label';
 import { HOURS, MINUTES, ITEM_H, SCROLL_PADDING } from '../const';
 import { parseTime } from '../utils';
@@ -72,23 +73,20 @@ export function TimePickerRHF({
     <div ref={containerRef} className='flex flex-col gap-1 relative'>
       {label && <Label htmlFor={name}>{label}</Label>}
 
-      <button
+      <ButtonField
         id={name}
+        variant='field-trigger'
         type='button'
         disabled={disabled}
         onClick={() => !disabled && setIsOpen((o) => !o)}
-        className={`flex items-center gap-3 rounded-xl px-4 py-3 text-body-md text-on-surface w-full disabled:opacity-50 disabled:cursor-default transition-colors ${
-          isOpen
-            ? 'bg-primary/10 ring-2 ring-primary'
-            : 'bg-surface-container-low hover:bg-surface-container'
-        }`}>
+        className={`w-full ${isOpen ? 'bg-primary/10 ring-2 ring-primary' : 'bg-surface-container-low hover:bg-surface-container'}`}>
         <Clock size={16} className='text-on-surface-variant shrink-0' />
         {field.value != null ? (
           <span className='flex-1 text-left font-medium tracking-wide'>{selectedH}:{selectedM}</span>
         ) : (
           <span className='flex-1 text-left text-on-surface-variant/50'>{placeholder}</span>
         )}
-      </button>
+      </ButtonField>
 
       {errorMessage && <p className='text-label-sm text-error'>{errorMessage}</p>}
 
@@ -158,14 +156,13 @@ interface ITimeItemProps {
 function TimeItem({ value, selected, onClick }: ITimeItemProps) {
   return (
     <li>
-      <button
+      <ButtonField
         type='button'
+        variant='time-item'
         onClick={onClick}
-        className={`w-full h-9 flex items-center justify-center text-body-md font-medium transition-colors ${
-          selected ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container'
-        }`}>
+        className={selected ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container'}>
         {value}
-      </button>
+      </ButtonField>
     </li>
   );
 }

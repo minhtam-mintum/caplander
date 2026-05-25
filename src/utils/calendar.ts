@@ -44,3 +44,17 @@ export function isToday(year: number, month: number, day: number): boolean {
   const now = new Date();
   return now.getFullYear() === year && now.getMonth() === month && now.getDate() === day;
 }
+
+export function formatTime(ms: number): string {
+  const h = String(Math.floor(ms / 3600000)).padStart(2, '0');
+  const m = String(Math.floor((ms % 3600000) / 60000)).padStart(2, '0');
+  return `${h}:${m}`;
+}
+
+export function formatDetailDate(date: Date): string {
+  const weekday = DAY_LABELS_BY_FORMAT.short[date.getUTCDay()];
+  const month = MONTH_NAMES[date.getUTCMonth()].slice(0, 3);
+  const day = date.getUTCDate();
+  const year = date.getUTCFullYear();
+  return `${weekday}, ${month} ${day}, ${year}`;
+}

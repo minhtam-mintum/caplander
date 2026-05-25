@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, Plus, Tag, X } from 'lucide-react';
+import { ButtonField } from 'app/components/molecules/Buttons/ButtonField';
 import { useSelectContext } from 'app/components/molecules/Selects/SelectRHF';
 import type { ILabel } from 'app/hooks/useLabels';
 
@@ -58,13 +59,13 @@ export function CreateNewLabel({ onAdd }: ICreateNewLabelProps) {
 
   if (!isAdding) {
     return (
-      <button
+      <ButtonField
+        variant='label-action'
         type='button'
-        onClick={() => setIsAdding(true)}
-        className='flex items-center gap-2 w-full px-4 py-2.5 text-body-md text-primary hover:bg-surface-container transition-colors'>
+        onClick={() => setIsAdding(true)}>
         <Plus size={14} className='shrink-0' />
         Create New Label
-      </button>
+      </ButtonField>
     );
   }
 
@@ -72,16 +73,13 @@ export function CreateNewLabel({ onAdd }: ICreateNewLabelProps) {
     <div className='flex flex-col px-4 py-2.5 gap-2'>
       <div className='flex items-center gap-1.5'>
         {COLORS.map((c) => (
-          <button
+          <ButtonField
             key={c}
+            variant='swatch'
             type='button'
             onClick={() => setColor(c)}
             style={{ background: c }}
-            className={`w-4 h-4 rounded-full transition-transform ${
-              color === c
-                ? 'ring-2 ring-offset-1 ring-outline-variant scale-110'
-                : 'hover:scale-110'
-            }`}
+            className={color === c ? 'ring-2 ring-offset-1 ring-outline-variant scale-110' : 'hover:scale-110'}
           />
         ))}
       </div>
@@ -101,18 +99,12 @@ export function CreateNewLabel({ onAdd }: ICreateNewLabelProps) {
           placeholder='Label name…'
           className='flex-1 text-body-md bg-transparent outline-none text-on-surface placeholder:text-on-surface-variant/50'
         />
-        <button
-          type='button'
-          onClick={handleConfirm}
-          className='p-1 rounded text-primary hover:bg-surface-container transition-colors'>
+        <ButtonField variant='action-icon' type='button' onClick={handleConfirm} className='text-primary'>
           <Check size={14} />
-        </button>
-        <button
-          type='button'
-          onClick={handleCancel}
-          className='p-1 rounded text-on-surface-variant hover:bg-surface-container transition-colors'>
+        </ButtonField>
+        <ButtonField variant='action-icon' type='button' onClick={handleCancel} className='text-on-surface-variant'>
           <X size={14} />
-        </button>
+        </ButtonField>
       </div>
     </div>
   );

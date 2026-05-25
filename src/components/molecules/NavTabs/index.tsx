@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { ButtonField } from 'app/components/molecules/Buttons/ButtonField'
 
 export interface NavTab {
   id: string
@@ -18,18 +19,18 @@ export function NavTabs({ tabs, active, onChange }: INavTabsProps) {
       {tabs.map((tab) => {
         const isActive = tab.id === active
         return (
-          <button
+          <ButtonField
             key={tab.id}
+            variant='nav-tab'
             onClick={() => onChange(tab.id)}
-            className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-body-md transition-colors cursor-pointer
-              ${isActive
-                ? 'text-primary bg-primary/8 font-medium'
-                : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
-              }`}
+            className={isActive
+              ? 'text-primary bg-primary/8 font-medium'
+              : 'text-on-surface-variant hover:bg-surface-container hover:text-on-surface'
+            }
           >
             {tab.icon}
             {tab.label}
-          </button>
+          </ButtonField>
         )
       })}
     </nav>
