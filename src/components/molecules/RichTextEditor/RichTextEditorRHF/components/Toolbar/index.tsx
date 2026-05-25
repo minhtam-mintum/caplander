@@ -12,7 +12,7 @@ import {
   FORMAT_TEXT_COMMAND,
   type NodeKey,
 } from 'lexical';
-import { $isListNode, INSERT_UNORDERED_LIST_COMMAND, ListItemNode, ListNode } from '@lexical/list';
+import { INSERT_UNORDERED_LIST_COMMAND, ListItemNode, ListNode } from '@lexical/list';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 import { $getNearestNodeOfType } from '@lexical/utils';
 import { Bold, Code, Italic, Link2, List, Underline, X } from 'lucide-react';
@@ -154,11 +154,15 @@ export function Toolbar({ disabled }: IToolbarProps) {
       const paragraph = $createParagraphNode();
       listItem.getChildren().forEach((child) => paragraph.append(child));
       listItem.replace(paragraph);
-      const newSelection = $createRangeSelection();
-      const type = $isTextNode(anchorNode) ? 'text' : 'element';
-      newSelection.anchor.set(anchorNode.getKey(), anchorOffset, type);
-      newSelection.focus.set(anchorNode.getKey(), anchorOffset, type);
-      $setSelection(newSelection);
+      if (anchorNode.getKey() === listItem.getKey()) {
+        paragraph.select(0, 0);
+      } else {
+        const newSelection = $createRangeSelection();
+        const type = $isTextNode(anchorNode) ? 'text' : 'element';
+        newSelection.anchor.set(anchorNode.getKey(), anchorOffset, type);
+        newSelection.focus.set(anchorNode.getKey(), anchorOffset, type);
+        $setSelection(newSelection);
+      }
     });
   }, [editor, isList]);
 
@@ -212,7 +216,7 @@ export function Toolbar({ disabled }: IToolbarProps) {
             disabled={disabled || extraDisabled}
             onClick={onClick}
             onMouseDown={(e) => e.preventDefault()}
-            className={`p-1.5 rounded disabled:opacity-50 disabled:cursor-not-allowed ${active ? 'bg-primary text-white! hover:bg-primary! hover:text-white!' : ''}`}>
+            className={`p-1.5 disabled:opacity-50 disabled:cursor-not-allowed ${active ? 'bg-primary text-white! hover:bg-primary! hover:text-white!' : ''}`}>
             <Icon size={15} />
           </IconButton>
         ))}

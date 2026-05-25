@@ -10,12 +10,11 @@ interface IDatePickerRHFProps {
   label?: string;
   disabled?: boolean;
   placeholder?: string;
-  minDate?: string;
+  minDate?: Date;
 }
 
-function formatDisplayDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-').map(Number);
-  return `${MONTH_NAMES[month - 1]} ${day}, ${year}`;
+function formatDisplayDate(date: Date): string {
+  return `${MONTH_NAMES[date.getUTCMonth()]} ${date.getUTCDate()}, ${date.getUTCFullYear()}`;
 }
 
 export function DatePickerRHF({
@@ -47,14 +46,14 @@ export function DatePickerRHF({
   }, [isOpen, field.onBlur]);
 
   const handleDayClick = useCallback(
-    (dateStr: string) => {
-      field.onChange(dateStr);
+    (date: Date) => {
+      field.onChange(date);
       setIsOpen(false);
     },
     [field],
   );
 
-  const defaultDate = field.value ? new Date(field.value + 'T00:00:00') : undefined;
+  const defaultDate = field.value instanceof Date ? field.value : undefined;
 
   return (
     <div ref={containerRef} className='flex flex-col gap-1 relative'>
@@ -67,7 +66,7 @@ export function DatePickerRHF({
         onClick={() => !disabled && setIsOpen((o) => !o)}
         className='flex items-center gap-3 bg-surface-container-low rounded-xl px-4 py-3 text-body-md text-on-surface w-full disabled:opacity-50 disabled:cursor-default'>
         <CalendarDays size={16} className='text-on-surface-variant shrink-0' />
-        {field.value ? (
+        {field.value instanceof Date ? (
           <span className='flex-1 text-left'>{formatDisplayDate(field.value)}</span>
         ) : (
           <span className='flex-1 text-left text-on-surface-variant/50'>{placeholder}</span>

@@ -11,7 +11,7 @@ export interface IFullMonthInYearHandle {
 interface IFullMonthInYearProps {
   countByDate?: Record<string, number>;
   defaultYear?: number;
-  onDaySelect?: (dateStr: string) => void;
+  onDaySelect?: (date: Date) => void;
 }
 
 export const FullMonthInYear = forwardRef<IFullMonthInYearHandle, IFullMonthInYearProps>(

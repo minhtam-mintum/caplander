@@ -14,27 +14,27 @@ export type AlertValue = (typeof ALERT_VALUES)[number];
 
 export const eventModalSchema = yup.object({
   name: yup.string().required('Name is required'),
-  startDate: yup.string().required('Start date is required'),
-  startTime: yup.string().required('Start time is required'),
+  startDate: yup.date().required('Start date is required'),
+  startTime: yup.number().required('Start time is required'),
   endDate: yup
-    .string()
+    .date()
     .required('End date is required')
     .test('end-date-not-before-start', 'End date must be on or after start date', function (val) {
-      const { startDate } = this.parent as { startDate: string };
+      const { startDate } = this.parent as { startDate: Date };
       if (!startDate || !val) return true;
-      return val >= startDate;
+      return val.getTime() >= startDate.getTime();
     }),
   endTime: yup
-    .string()
+    .number()
     .required('End time is required')
     .test('end-after-start', 'End must be after start', function (val) {
       const { startDate, startTime, endDate } = this.parent as {
-        startDate: string;
-        startTime: string;
-        endDate: string;
+        startDate: Date;
+        startTime: number;
+        endDate: Date;
       };
-      if (!startDate || !startTime || !endDate || !val) return true;
-      return endDate > startDate || (endDate === startDate && val > startTime);
+      if (!startDate || startTime == null || !endDate || val == null) return true;
+      return endDate.getTime() + val > startDate.getTime() + startTime;
     }),
   alert: yup
     .number()

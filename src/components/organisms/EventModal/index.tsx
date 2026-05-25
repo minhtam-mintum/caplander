@@ -3,6 +3,7 @@ import { CalendarDays, Pencil } from 'lucide-react';
 import { Modal } from 'app/components/molecules/Modal';
 import { Form, type IFormHandle } from 'app/components/molecules/Form';
 import { ButtonRHF } from 'app/components/molecules/Buttons/ButtonRHF';
+import { useEvents } from 'app/hooks/useEvents';
 import { eventModalSchema, type EventFormData } from './const';
 import { EventFields } from './EventFields';
 
@@ -24,6 +25,7 @@ export const EventModal = forwardRef<IEventModalHandle, IEventModalProps>(functi
   { onClose: controlledOnClose, initialData },
   ref,
 ) {
+  const { addEvent } = useEvents();
   const [isOpen, setIsOpen] = useState(false);
   const [canEdit, setCanEdit] = useState(false);
   const formRef = useRef<IFormHandle<EventFormData>>(null);
@@ -57,8 +59,9 @@ export const EventModal = forwardRef<IEventModalHandle, IEventModalProps>(functi
   }, [controlledOnClose]);
 
   const onSubmit = (data: EventFormData) => {
-    // TODO: dispatch to store
-    console.log(data);
+    const start = data.startDate.getTime() + data.startTime;
+    const end = data.endDate.getTime() + data.endTime;
+    addEvent({ id: crypto.randomUUID(), name: data.name, start, end, alert: data.alert, label: data.label, notes: data.notes });
     handleClose();
   };
 

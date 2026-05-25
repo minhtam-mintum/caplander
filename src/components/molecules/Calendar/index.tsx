@@ -8,8 +8,8 @@ import { MONTH_NAMES } from 'app/utils/calendar';
 
 interface ICalendarProps {
   defaultDate?: Date;
-  minDate?: string;
-  onDayClick?: (dateStr: string) => void;
+  minDate?: Date;
+  onDayClick?: (date: Date) => void;
 }
 
 export function Calendar({ defaultDate, minDate, onDayClick }: ICalendarProps) {

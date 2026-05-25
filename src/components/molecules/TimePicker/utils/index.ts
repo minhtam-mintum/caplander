@@ -1,4 +1,7 @@
-export function parseTime(value: string): { h: string; m: string } {
-  const [h = '00', m = '00'] = value?.split(':') ?? [];
-  return { h: h.padStart(2, '0'), m: m.padStart(2, '0') };
+export function parseTime(ms: number): { h: string; m: string } {
+  const totalMinutes = Math.floor(ms / 60000);
+  return {
+    h: String(Math.floor(totalMinutes / 60)).padStart(2, '0'),
+    m: String(totalMinutes % 60).padStart(2, '0'),
+  };
 }

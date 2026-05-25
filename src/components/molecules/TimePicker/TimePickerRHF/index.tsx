@@ -30,7 +30,7 @@ export function TimePickerRHF({
   const hourListRef = useRef<HTMLUListElement>(null);
   const minuteListRef = useRef<HTMLUListElement>(null);
 
-  const { h: selectedH, m: selectedM } = parseTime(field.value ?? '');
+  const { h: selectedH, m: selectedM } = parseTime(field.value ?? 0);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,14 +56,14 @@ export function TimePickerRHF({
 
   const selectHour = useCallback(
     (h: string) => {
-      field.onChange(`${h}:${selectedM}`);
+      field.onChange(Number(h) * 3600000 + Number(selectedM) * 60000);
     },
     [field, selectedM],
   );
 
   const selectMinute = useCallback(
     (m: string) => {
-      field.onChange(`${selectedH}:${m}`);
+      field.onChange(Number(selectedH) * 3600000 + Number(m) * 60000);
     },
     [field, selectedH],
   );
@@ -83,8 +83,8 @@ export function TimePickerRHF({
             : 'bg-surface-container-low hover:bg-surface-container'
         }`}>
         <Clock size={16} className='text-on-surface-variant shrink-0' />
-        {field.value ? (
-          <span className='flex-1 text-left font-medium tracking-wide'>{field.value}</span>
+        {field.value != null ? (
+          <span className='flex-1 text-left font-medium tracking-wide'>{selectedH}:{selectedM}</span>
         ) : (
           <span className='flex-1 text-left text-on-surface-variant/50'>{placeholder}</span>
         )}
