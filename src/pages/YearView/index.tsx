@@ -1,13 +1,11 @@
-import { useCallback, useMemo, useRef } from 'react';
-import { FullMonthInYear, type IFullMonthInYearHandle } from './components/FullMonthInYear';
+import { useCallback, useRef } from 'react';
+import { FullMonthInYear } from './components/FullMonthInYear';
 import { EventModal, type IEventModalHandle } from 'app/components/organisms/EventModal';
 import { DayDrawer, type IDayDrawerHandle } from 'app/components/organisms/DayDrawer';
 import { Toolbar } from 'app/components/molecules/Toolbar';
-import { HeatmapDay } from 'app/components/molecules/HeatmapDay';
-import { useAppSelector } from 'app/store';
 import type { IEvent } from 'app/store/slices/eventSlice';
-import { toDateStr } from 'app/utils/calendar';
-import { ITitleYearPageHandle, TitleYearPage } from './components/Title';
+import { TitleYearPage } from './components/Title';
+import type { IFullMonthInYearHandle, ITitleYearPageHandle } from './types';
 
 export function YearView() {
   const defaultYear = useRef(new Date().getFullYear()).current;
@@ -15,33 +13,6 @@ export function YearView() {
   const modalRef = useRef<IEventModalHandle>(null);
   const drawerRef = useRef<IDayDrawerHandle>(null);
   const titleRef = useRef<ITitleYearPageHandle>(null);
-  const events = useAppSelector((state) => state.events.items);
-
-  const countByDate = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const event of events) {
-      const startDay = Math.floor(event.start / 86400000) * 86400000;
-      const endDay = Math.floor(event.end / 86400000) * 86400000;
-      for (let day = startDay; day <= endDay; day += 86400000) {
-        const d = new Date(day);
-        const key = toDateStr(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-        map[key] = (map[key] ?? 0) + 1;
-      }
-    }
-    return map;
-  }, [events]);
-
-  const renderDay = useCallback(
-    (year: number, month: number, day: number) => (
-      <HeatmapDay
-        day={day}
-        count={countByDate[toDateStr(year, month, day)] ?? 0}
-        onClick={() => drawerRef.current?.open(new Date(Date.UTC(year, month, day)))}
-      />
-    ),
-    [countByDate],
-  );
-
   const handleAddEvent = useCallback((date: Date) => {
     drawerRef.current?.close();
     modalRef.current?.open({ startDate: date, endDate: date });
@@ -69,16 +40,13 @@ export function YearView() {
   const handlePrev = () => handleSync((yearRef.current?.getYear() ?? defaultYear) - 1);
   const handleNext = () => handleSync((yearRef.current?.getYear() ?? defaultYear) + 1);
   const handleToday = () => handleSync(defaultYear);
-
+  const handleSelectDay = (date: Date) => {
+    drawerRef.current?.open(date);
+  };
   return (
     <main className='max-w-360 mx-auto px-margin py-lg flex flex-col gap-6'>
       <EventModal ref={modalRef} />
-      <DayDrawer
-        ref={drawerRef}
-        events={events}
-        onAddEvent={handleAddEvent}
-        onEventClick={handleEventClick}
-      />
+      <DayDrawer ref={drawerRef} onAddEvent={handleAddEvent} onEventClick={handleEventClick} />
       <Toolbar
         align='end'
         title={<TitleYearPage defaultYear={defaultYear} ref={titleRef} />}
@@ -86,7 +54,7 @@ export function YearView() {
         onNext={handleNext}
         onToday={handleToday}
       />
-      <FullMonthInYear ref={yearRef} defaultYear={defaultYear} renderDay={renderDay} />
+      <FullMonthInYear ref={yearRef} defaultYear={defaultYear} onDaySelect={handleSelectDay} />
     </main>
   );
 }

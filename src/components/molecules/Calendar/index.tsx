@@ -2,15 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   MonthCalendar,
   type IMonthCalendarHandle,
-} from 'app/components/molecules/Calendar/MonthCalendar';
+} from 'app/components/molecules/Calendar/components/MonthCalendar';
 import { Toolbar } from 'app/components/molecules/Toolbar';
 import { MONTH_NAMES } from 'app/utils/calendar';
 
-interface ICalendarProps {
-  defaultDate?: Date;
-  minDate?: Date;
-  onDayClick?: (date: Date) => void;
-}
+import { type ICalendarProps } from './types';
 
 export function Calendar({ defaultDate, minDate, onDayClick }: ICalendarProps) {
   const [viewDate, setViewDate] = useState(defaultDate ?? new Date());

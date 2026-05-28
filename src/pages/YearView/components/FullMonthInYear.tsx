@@ -1,27 +1,18 @@
-import { forwardRef, useImperativeHandle, useRef, useState, type ReactNode } from 'react';
-import { MonthCalendar } from 'app/components/molecules/Calendar/MonthCalendar';
-
-export interface IFullMonthInYearHandle {
-  onSetYear: (newYear: number) => void;
-  /** Resets the displayed year back to `defaultYear` (falls back to the current year if `defaultYear` was not provided). */
-  onResetYear: VoidFunction;
-  getYear: VoidFunction;
-}
-
-interface IFullMonthInYearProps {
-  defaultYear?: number;
-  onDaySelect?: (date: Date) => void;
-  renderDay?: (year: number, month: number, day: number) => ReactNode;
-}
+import { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import {
+  IRenderDayProps,
+  MonthCalendar,
+} from 'app/components/molecules/Calendar/components/MonthCalendar';
+import { HeatmapDay } from 'app/components/molecules/HeatmapDay';
+import { useAppSelector } from 'app/store';
+import { toDateStr } from 'app/utils/calendar';
+import type { IFullMonthInYearHandle, IFullMonthInYearProps } from 'app/pages/YearView/types';
 
 export const FullMonthInYear = forwardRef<IFullMonthInYearHandle, IFullMonthInYearProps>(
-  function FullMonthInYear(
-    { defaultYear = new Date().getFullYear(), onDaySelect, renderDay },
-    ref,
-  ) {
+  function FullMonthInYear({ defaultYear = new Date().getFullYear(), onDaySelect }, ref) {
     const yearCursor = useRef(defaultYear);
     const [, forceUpdate] = useState(0);
-
+    const events = useAppSelector((state) => state.events.items);
     useImperativeHandle(
       ref,
       () => ({
@@ -40,7 +31,31 @@ export const FullMonthInYear = forwardRef<IFullMonthInYearHandle, IFullMonthInYe
       }),
       [],
     );
+    const countByDate = useMemo(() => {
+      const map: Record<string, number> = {};
+      for (const event of events) {
+        const startDay = Math.floor(event.start / 86400000) * 86400000;
+        const endDay = Math.floor(event.end / 86400000) * 86400000;
+        for (let day = startDay; day <= endDay; day += 86400000) {
+          const d = new Date(day);
+          const key = toDateStr(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+          map[key] = (map[key] ?? 0) + 1;
+        }
+      }
+      return map;
+    }, [events]);
 
+    const renderDay = ({ day, year, month, isCurrentMonth }: IRenderDayProps) => (
+      <>
+        {isCurrentMonth && (
+          <HeatmapDay
+            day={day}
+            count={countByDate[toDateStr(year, month, day)] ?? 0}
+            onClick={() => onDaySelect(new Date(Date.UTC(year, month, day)))}
+          />
+        )}
+      </>
+    );
     return (
       <div className='grid grid-cols-4 gap-3.5'>
         {Array.from({ length: 12 }, (_, month) => (

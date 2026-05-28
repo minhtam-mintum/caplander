@@ -4,13 +4,8 @@ import { formatDetailDate, formatTime } from 'app/utils/calendar';
 import { ALERT_OPTIONS, type EventFormData } from './const';
 import { useFormContext } from 'react-hook-form';
 
-interface IEventDetailProps {
-  data: Partial<EventFormData>;
-}
-
 export function EventDetail() {
   const { getValues } = useFormContext();
-  console.log(getValues());
   const data: Partial<EventFormData> = getValues();
   const { labels } = useLabels();
 

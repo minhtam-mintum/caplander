@@ -1,12 +1,5 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
-
-export interface ITitleMonthPageHandle {
-  setTitle: (title: string) => void;
-}
-
-interface ITitleMonthPageProps {
-  defaultTitle: string;
-}
+import type { ITitleMonthPageHandle, ITitleMonthPageProps } from 'app/pages/MonthView/types';
 
 export const TitleMonthPage = forwardRef<ITitleMonthPageHandle, ITitleMonthPageProps>(
   function TitleMonthPage({ defaultTitle }, ref) {

@@ -6,6 +6,7 @@ import { DismissButton } from 'app/components/molecules/Buttons/DismissButton';
 import { DashedButton } from 'app/components/molecules/Buttons/DashedButton';
 import { MONTH_NAMES } from 'app/utils/calendar';
 import { lockScroll, unlockScroll } from 'app/utils/scrollLock';
+import { useAppSelector } from 'app/store';
 
 export interface IDayDrawerHandle {
   open: (date: Date) => void;
@@ -13,7 +14,6 @@ export interface IDayDrawerHandle {
 }
 
 interface IDayDrawerProps {
-  events: IEvent[];
   onAddEvent: (date: Date) => void;
   onEventClick: (event: IEvent) => void;
 }
@@ -34,9 +34,11 @@ function formatHeaderDate(date: Date): string {
 }
 
 export const DayDrawer = forwardRef<IDayDrawerHandle, IDayDrawerProps>(function DayDrawer(
-  { events, onAddEvent, onEventClick },
+  { onAddEvent, onEventClick },
   ref,
 ) {
+  const events = useAppSelector((state) => state.events.items);
+
   const [date, setDate] = useState<Date | null>(null);
   const isOpen = date != null;
 

@@ -1,7 +1,6 @@
 import { forwardRef, type ForwardedRef, type ReactNode, useImperativeHandle } from 'react';
 import {
   type DefaultValues,
-  type FieldErrors,
   type FieldValues,
   FormProvider,
   type Mode,

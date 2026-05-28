@@ -1,8 +1,6 @@
-import { Dispatch, forwardRef, SetStateAction, useImperativeHandle, useState } from 'react';
-export interface ITitleYearPageHandle {
-  setYear: Dispatch<SetStateAction<number>>;
-}
-export const TitleYearPage = forwardRef<ITitleYearPageHandle, { defaultYear: number }>(
+import { forwardRef, useImperativeHandle, useState } from 'react';
+import type { ITitleYearPageHandle, ITitleYearPageProps } from 'app/pages/YearView/types';
+export const TitleYearPage = forwardRef<ITitleYearPageHandle, ITitleYearPageProps>(
   function TitleYearPage({ defaultYear }, ref) {
     const [year, setYear] = useState<number>(defaultYear);
     useImperativeHandle(
