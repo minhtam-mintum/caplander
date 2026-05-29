@@ -172,7 +172,6 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
     const renderOverlay = (weekCells: IWeekCell[]) => {
       const weekDates = weekCells.map((c) => new Date(c.year, c.month, c.day));
       const layout = layoutWeek(weekDates, events);
-      console.log(layout);
       if (!layout.visibleBars.length && layout.overflowByCol.every((n) => n === 0)) return null;
       const weekStartDate = weekDates[0];
 
@@ -203,6 +202,27 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
                 }}
                 onDragStart={(e) => handleDragStart(e, bar, weekStartDate)}
                 onDragEnd={handleDragEnd}
+                onDragOver={(e) => {
+                  if (!dragInfo) return;
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = 'move';
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const barW = rect.width / bar.span;
+                  const dayIndex = Math.min(bar.span - 1, Math.max(0, Math.floor((e.clientX - rect.left) / barW)));
+                  const colIndex = bar.startCol - 1 + dayIndex;
+                  const targetDate = weekDates[Math.min(colIndex, weekDates.length - 1)];
+                  const ds = toDateStr(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+                  if (dragOverDs !== ds) setDragOverDs(ds);
+                }}
+                onDrop={(e) => {
+                  if (!dragInfo) return;
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const barW = rect.width / bar.span;
+                  const dayIndex = Math.min(bar.span - 1, Math.max(0, Math.floor((e.clientX - rect.left) / barW)));
+                  const colIndex = bar.startCol - 1 + dayIndex;
+                  const targetDate = weekDates[Math.min(colIndex, weekDates.length - 1)];
+                  handleDrop(e, targetDate);
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!dragInfo) onEventClick(bar.ev);

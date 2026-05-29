@@ -1,37 +1,36 @@
-import { Clock, Users } from 'lucide-react'
-import type { DayCalendarEvent } from 'app/types/event'
-import { formatTimeRange } from 'app/utils/week'
-import { Badge } from 'app/components/atoms/Badge'
-import { cn } from 'app/utils/cn'
+import { Clock, Users } from 'lucide-react';
+import type { DayCalendarEvent } from 'app/types/event';
+import { formatTimeRange } from 'app/utils/day';
+import { Badge } from 'app/components/atoms/Badge';
+import { cn } from 'app/utils/cn';
 
 const accentBorder: Record<NonNullable<DayCalendarEvent['variant']>, string> = {
-  primary:   'border-l-primary',
+  primary: 'border-l-primary',
   secondary: 'border-l-secondary',
-  tertiary:  'border-l-tertiary',
-  surface:   'border-l-outline-variant',
-}
+  tertiary: 'border-l-tertiary',
+  surface: 'border-l-outline-variant',
+};
 
 interface IDayEventCardProps {
-  event: DayCalendarEvent
-  offsetTop: number
-  height: number
-  className?: string
+  event: DayCalendarEvent;
+  offsetTop: number;
+  height: number;
+  className?: string;
 }
 
 export function DayEventCard({ event, offsetTop, height, className }: IDayEventCardProps) {
-  const border = accentBorder[event.variant ?? 'secondary']
+  const border = accentBorder[event.variant ?? 'secondary'];
 
   if (event.isPill) {
     return (
       <div
         className='absolute inset-x-0 flex items-center justify-center pointer-events-none'
-        style={{ top: offsetTop }}
-      >
+        style={{ top: offsetTop }}>
         <span className='bg-surface-container text-on-surface-variant text-label-sm px-4 py-1 rounded-full border border-outline-variant'>
           {event.title}
         </span>
       </div>
-    )
+    );
   }
 
   return (
@@ -41,8 +40,7 @@ export function DayEventCard({ event, offsetTop, height, className }: IDayEventC
         border,
         className,
       )}
-      style={{ top: offsetTop + 2, height: Math.max(height - 4, 32) }}
-    >
+      style={{ top: offsetTop + 2, height: Math.max(height - 4, 32) }}>
       {/* Title row */}
       <div className='flex items-start justify-between gap-2'>
         <p className='text-body-md font-semibold text-on-surface leading-tight'>{event.title}</p>
@@ -77,5 +75,5 @@ export function DayEventCard({ event, offsetTop, height, className }: IDayEventC
         </div>
       )}
     </div>
-  )
+  );
 }
