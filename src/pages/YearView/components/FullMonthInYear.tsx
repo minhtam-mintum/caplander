@@ -57,7 +57,7 @@ export const FullMonthInYear = forwardRef<IFullMonthInYearHandle, IFullMonthInYe
       </>
     );
     return (
-      <div className='grid grid-cols-4 gap-3.5'>
+      <div className='grid grid-cols-2 xl:grid-cols-4 gap-3.5'>
         {Array.from({ length: 12 }, (_, month) => (
           <MonthCalendar
             key={yearCursor.current * 12 + month}

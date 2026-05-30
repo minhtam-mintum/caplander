@@ -5,7 +5,7 @@ import { useNotifications } from 'app/hooks/useNotifications';
 function App() {
   useNotifications();
   return (
-    <div className='min-h-screen bg-background'>
+    <div className='min-h-screen min-w-3xl bg-background'>
       <AppHeader />
       <Outlet />
     </div>
