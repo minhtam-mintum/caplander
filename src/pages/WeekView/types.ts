@@ -15,6 +15,7 @@ export interface IWeekGridHandle {
   prev: () => void;
   next: () => void;
   goToday: () => void;
+  goToDate: (date: Date) => void;
 }
 
 export interface IWeekGridProps {

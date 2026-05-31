@@ -42,6 +42,7 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
           return n;
         }),
       goToday: () => setRefDate(new Date()),
+      goToDate: (date: Date) => setRefDate(date),
     }),
     [],
   );

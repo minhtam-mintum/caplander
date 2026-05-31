@@ -7,6 +7,7 @@ import { MonthViewGrid } from './components/MonthViewGrid';
 import type { ITitleMonthPageHandle, IMonthViewGridHandle } from './types';
 import { MONTH_NAMES } from 'app/utils/calendar';
 import type { IEvent } from 'app/store/slices/eventSlice';
+import { useSeekDate } from 'app/hooks/useSeekDate';
 
 const formatTitle = (date: Date) => `${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
 
@@ -40,6 +41,12 @@ export function MonthView() {
     drawerRef.current?.close();
     modalRef.current?.open({ startDate: date, endDate: date });
   }, []);
+
+  useSeekDate((d) => {
+    dateCursor.current = d;
+    gridRef.current?.updateMonth(d.getFullYear(), d.getMonth());
+    titleRef.current?.setTitle(formatTitle(d));
+  });
 
   const handleSync = (newDate: Date) => {
     dateCursor.current = newDate;

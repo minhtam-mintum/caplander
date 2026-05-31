@@ -39,6 +39,7 @@ export const DayTimeGrid = forwardRef<IDayTimeGridHandle, IDayTimeGridProps>(fun
           return n;
         }),
       goToday: () => setDate(new Date()),
+      goToDate: (date: Date) => setDate(date),
     }),
     [],
   );

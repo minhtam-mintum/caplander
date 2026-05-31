@@ -5,12 +5,15 @@ import { Toolbar } from 'app/components/molecules/Toolbar';
 import { EventModal, type IEventModalHandle } from 'app/components/organisms/EventModal';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import type { ITitleDayPageHandle } from 'app/pages/DayView/types';
+import { useSeekDate } from 'app/hooks/useSeekDate';
 
 export function DayView() {
   const gridRef = useRef<IDayTimeGridHandle>(null);
   const modalRef = useRef<IEventModalHandle>(null);
   const titleRef = useRef<ITitleDayPageHandle>(null);
   const defaultDate = useRef(new Date()).current;
+
+  useSeekDate((date) => gridRef.current?.goToDate(date));
 
   const onPrev  = useCallback(() => gridRef.current?.prev(), []);
   const onNext  = useCallback(() => gridRef.current?.next(), []);

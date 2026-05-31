@@ -8,6 +8,7 @@ export interface IDayTimeGridHandle {
   prev: () => void;
   next: () => void;
   goToday: () => void;
+  goToDate: (date: Date) => void;
 }
 
 export interface IDayTimeGridProps {

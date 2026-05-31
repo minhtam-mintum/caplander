@@ -7,12 +7,15 @@ import { formatWeekRange, getWeekDays } from 'app/pages/WeekView/utils';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import type { ITitleWeekPageHandle, IWeekGridHandle } from './types';
 import { WEEK_START } from './const';
+import { useSeekDate } from 'app/hooks/useSeekDate';
 
 export function WeekView() {
   const gridRef = useRef<IWeekGridHandle>(null);
   const modalRef = useRef<IEventModalHandle>(null);
   const titleRef = useRef<ITitleWeekPageHandle>(null);
   const defaultTitle = useRef(formatWeekRange(getWeekDays(new Date(), WEEK_START))).current;
+
+  useSeekDate((date) => gridRef.current?.goToDate(date));
 
   const onPrev = useCallback(() => gridRef.current?.prev(), []);
   const onNext = useCallback(() => gridRef.current?.next(), []);
