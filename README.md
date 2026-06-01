@@ -2,6 +2,10 @@
 
 A calendar and event management app built with React 19, TypeScript, and Vite. Supports four calendar views, event creation with rich text notes, label tagging, and browser push notifications.
 
+**Live demo:** [caplander.netlify.app](https://caplander.netlify.app)
+
+**Author:** Mintum
+
 ## Features
 
 - **Four calendar views** — Year, Month, Week, and Day
