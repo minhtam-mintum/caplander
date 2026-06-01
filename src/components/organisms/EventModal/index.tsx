@@ -2,9 +2,9 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 import { CalendarDays } from 'lucide-react';
 import { Modal, type IModalHandle } from 'app/components/molecules/Modal';
 import { type EventFormData } from './const';
-import { EventFields } from './EventFields';
-import { EventDetail } from './EventDetail';
-import { ConfirmDelete } from './ConfirmDelete';
+import { EventFields } from './components/EventFields';
+import { EventDetail } from './components/EventDetail';
+import { ConfirmDelete } from './components/ConfirmDelete';
 
 export type { EventFormData } from './const';
 

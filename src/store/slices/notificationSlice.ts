@@ -14,12 +14,18 @@ export { NOTIFICATION_READ_KEY };
 
 interface INotificationState {
   readIds: string[];
+  notifiedIds: string[];
 }
 
 const notificationSlice = createSlice({
   name: 'notifications',
-  initialState: { readIds: loadReadIds() } as INotificationState,
+  initialState: { readIds: loadReadIds(), notifiedIds: [] } as INotificationState,
   reducers: {
+    addNotified: (state, action: PayloadAction<string>) => {
+      if (!state.notifiedIds.includes(action.payload)) {
+        state.notifiedIds.push(action.payload);
+      }
+    },
     markAsRead: (state, action: PayloadAction<string>) => {
       if (!state.readIds.includes(action.payload)) {
         state.readIds.push(action.payload);
@@ -33,5 +39,5 @@ const notificationSlice = createSlice({
   },
 });
 
-export const { markAsRead, markAllAsRead } = notificationSlice.actions;
+export const { addNotified, markAsRead, markAllAsRead } = notificationSlice.actions;
 export default notificationSlice.reducer;

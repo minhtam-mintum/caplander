@@ -12,20 +12,18 @@ interface INotificationPanelProps {
   onEventClick: (data: Partial<EventFormData>) => void;
 }
 
-export const NotificationPanel = memo(function NotificationPanel({ onEventClick }: INotificationPanelProps) {
-  console.log('NotificationPanel re-render');
+export const NotificationPanel = memo(function NotificationPanel({
+  onEventClick,
+}: INotificationPanelProps) {
   const dispatch = useAppDispatch();
   const events = useAppSelector((state) => state.events.items);
   const readIds = useAppSelector((state) => state.notifications.readIds);
+  const notifiedIds = useAppSelector((state) => state.notifications.notifiedIds);
   const [open, setOpen] = useState(false);
   const bellRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const now = Date.now();
-  const upcoming = events
-    .filter((e) => e.start > now - 3600000)
-    .slice()
-    .reverse();
+  const upcoming = events.filter((e) => notifiedIds.includes(e.id)).slice().reverse();
   const unreadCount = upcoming.filter((e) => !readIds.includes(e.id)).length;
 
   useEffect(() => {
@@ -88,7 +86,7 @@ export const NotificationPanel = memo(function NotificationPanel({ onEventClick 
             <div className='max-h-96 overflow-y-auto divide-y divide-outline-variant'>
               {upcoming.length === 0 ? (
                 <p className='px-4 py-6 text-body-sm text-on-surface-variant text-center'>
-                  No upcoming events
+                  No events
                 </p>
               ) : (
                 upcoming.map((event) => {

@@ -34,8 +34,7 @@ export function ConfirmDelete({ renderFooter, id, onCancel, onClose }: IConfirmD
           <OutlineButton
             type='button'
             className='bg-error! text-on-error! border-error! hover:bg-error/90!'
-            onClick={handleDelete}
-          >
+            onClick={handleDelete}>
             <Trash2 size={14} />
             Delete
           </OutlineButton>

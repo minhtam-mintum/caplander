@@ -8,10 +8,14 @@ import { ButtonRHF } from 'app/components/molecules/Buttons/ButtonRHF';
 import { CancelButton } from 'app/components/molecules/Buttons/CancelButton';
 import { useAppDispatch } from 'app/store';
 import { addEvent, updateEvent } from 'app/store/slices/eventSlice';
-import { GroupPeriodDate } from './components/GroupPeriodDate';
-import { GroupPeriodTime } from './components/GroupPeriodTime';
-import { LabelSelect } from './components/LabelSelect';
-import { ALERT_OPTIONS, eventModalSchema, type EventFormData } from './const';
+import { GroupPeriodDate } from 'app/components/organisms/EventModal/components/GroupPeriodDate';
+import { GroupPeriodTime } from 'app/components/organisms/EventModal/components/GroupPeriodTime';
+import { LabelSelect } from 'app/components/organisms/EventModal/components/LabelSelect';
+import {
+  ALERT_OPTIONS,
+  eventModalSchema,
+  type EventFormData,
+} from 'app/components/organisms/EventModal/const';
 
 interface IEventFieldsProps {
   renderFooter: (content: ReactNode) => ReactNode;
@@ -21,13 +25,26 @@ interface IEventFieldsProps {
   onClose: () => void;
 }
 
-export function EventFields({ renderFooter, defaultValues, id, onCancel, onClose }: IEventFieldsProps) {
+export function EventFields({
+  renderFooter,
+  defaultValues,
+  id,
+  onCancel,
+  onClose,
+}: IEventFieldsProps) {
   const dispatch = useAppDispatch();
 
   const handleSubmit = (data: EventFormData) => {
     const start = data.startDate.getTime() + data.startTime;
     const end = data.endDate.getTime() + data.endTime;
-    const event = { name: data.name, start, end, alert: data.alert, label: data.label, notes: data.notes };
+    const event = {
+      name: data.name,
+      start,
+      end,
+      alert: data.alert,
+      label: data.label,
+      notes: data.notes,
+    };
     if (data.id) {
       dispatch(updateEvent({ id: data.id, ...event }));
     } else {
@@ -47,12 +64,7 @@ export function EventFields({ renderFooter, defaultValues, id, onCancel, onClose
         </div>
 
         <div className='grid grid-cols-2 gap-3'>
-          <SelectRHF
-            name='alert'
-            label='Alert'
-            options={ALERT_OPTIONS}
-            icon={<Bell size={15} />}
-          />
+          <SelectRHF name='alert' label='Alert' options={ALERT_OPTIONS} icon={<Bell size={15} />} />
 
           <LabelSelect />
         </div>

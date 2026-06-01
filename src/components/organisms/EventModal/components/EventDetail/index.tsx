@@ -3,7 +3,7 @@ import { Bell, Clock, Pencil, Tag, Trash2 } from 'lucide-react';
 import { useLabels } from 'app/hooks/useLabels';
 import { formatDetailDate, formatTime } from 'app/utils/calendar';
 import { OutlineButton } from 'app/components/molecules/Buttons/OutlineButton';
-import { ALERT_OPTIONS, type EventFormData } from './const';
+import { ALERT_OPTIONS, type EventFormData } from 'app/components/organisms/EventModal/const';
 
 interface IEventDetailProps {
   data: Partial<EventFormData>;
@@ -97,8 +97,7 @@ export function EventDetail({ data, renderFooter, onEdit, onDelete }: IEventDeta
           <OutlineButton
             type='button'
             className='bg-error! text-on-error! border-error! hover:bg-error/90!'
-            onClick={onDelete}
-          >
+            onClick={onDelete}>
             <Trash2 size={14} />
             Delete
           </OutlineButton>

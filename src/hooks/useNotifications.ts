@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useAppSelector } from 'app/store';
+import { useAppDispatch, useAppSelector } from 'app/store';
+import { addNotified } from 'app/store/slices/notificationSlice';
 import { formatTime } from 'app/utils/calendar';
 
 async function showNotification(title: string, options: NotificationOptions) {
@@ -20,6 +21,7 @@ async function showNotification(title: string, options: NotificationOptions) {
 }
 
 export function useNotifications() {
+  const dispatch = useAppDispatch();
   const events = useAppSelector((state) => state.events.items);
   const [permission, setPermission] = useState<NotificationPermission>(
     typeof Notification !== 'undefined' ? Notification.permission : 'denied',
@@ -49,6 +51,7 @@ export function useNotifications() {
       const timer = setTimeout(() => {
         const body = `Starting at ${formatTime(snapshot.start % 86400000)}`;
         showNotification(snapshot.name, { body, icon: '/favicon.ico', tag: snapshot.id });
+        dispatch(addNotified(snapshot.id));
       }, delay);
 
       timers.push(timer);
