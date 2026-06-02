@@ -1,28 +1,20 @@
 import { useCallback, useRef } from 'react';
-import { Calendar, CalendarDays, CalendarRange, LayoutGrid, Plus } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { ROUTES } from 'app/constants/route';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import { Avatar } from 'app/components/atoms/Avatar';
 import { Button } from 'app/components/atoms/Button';
 import { Logo } from 'app/components/atoms/Logo';
-import { NavTabs, type NavTab } from 'app/components/molecules/NavTabs';
 import { EventModal, IEventModalHandle, type EventFormData } from 'app/components/organisms/EventModal';
+import { CalendarNavTabs, type ICalendarNavTabsHandle } from './components/CalendarNavTabs';
 import { EventSearch } from './components/EventSearch';
 import { NotificationPanel } from './components/NotificationPanel';
 
-const CALENDAR_TABS: NavTab[] = [
-  { id: ROUTES.YEAR, label: 'Year View', icon: <LayoutGrid size={14} /> },
-  { id: ROUTES.MONTH, label: 'Month View', icon: <CalendarDays size={14} /> },
-  { id: ROUTES.WEEK, label: 'Week View', icon: <CalendarRange size={14} /> },
-  { id: ROUTES.DAY, label: 'Day View', icon: <Calendar size={14} /> },
-];
-
 export function AppHeader() {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const eventModalRef = useRef<IEventModalHandle>(null);
-  const activeView = CALENDAR_TABS.some((t) => t.id === pathname) ? pathname : ROUTES.MONTH;
+  const navTabsRef = useRef<ICalendarNavTabsHandle>(null);
 
   const handleEventClick = useCallback((data: Partial<EventFormData>) => {
     eventModalRef.current?.open(data);
@@ -30,6 +22,7 @@ export function AppHeader() {
 
   const handleSearchSelect = useCallback(
     (event: IEvent) => {
+      const activeView = navTabsRef.current?.getActiveView() ?? ROUTES.MONTH;
       navigate(activeView, { state: { seekDate: event.start } });
       eventModalRef.current?.open({
         id: event.id,
@@ -43,7 +36,7 @@ export function AppHeader() {
         notes: event.notes,
       });
     },
-    [activeView, navigate],
+    [navigate],
   );
 
   return (
@@ -70,7 +63,7 @@ export function AppHeader() {
             </div>
           </div>
           <div className='pb-0.5'>
-            <NavTabs tabs={CALENDAR_TABS} active={activeView} onChange={navigate} />
+            <CalendarNavTabs ref={navTabsRef} />
           </div>
         </div>
       </header>

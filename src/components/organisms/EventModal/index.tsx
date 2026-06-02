@@ -24,7 +24,6 @@ export const EventModal = forwardRef<IEventModalHandle, IEventModalProps>(functi
   const [view, setView] = useState<EventModalView>('form');
   const modalRef = useRef<IModalHandle>(null);
   const dataRef = useRef<Partial<EventFormData>>({});
-
   useImperativeHandle(
     ref,
     () => ({
