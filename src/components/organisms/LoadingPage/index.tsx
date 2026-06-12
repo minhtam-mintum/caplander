@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 
 export function LoadingPage() {
+  const isDark = document.documentElement.classList.contains('dark');
+
   useEffect(() => {
-    return () => {
-      document.getElementById('splash')?.remove();
-    };
+    document.getElementById('splash')?.remove();
   }, []);
 
   return (
@@ -12,7 +12,7 @@ export function LoadingPage() {
       style={{
         position: 'fixed',
         inset: 0,
-        backgroundColor: '#f7f9fb',
+        backgroundColor: isDark ? '#191c1e' : '#f7f9fb',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -32,15 +32,15 @@ export function LoadingPage() {
 
       <img src='/logo.png' alt='Caplander' style={{ width: 80, height: 80 }} />
 
-      <span style={{ color: '#1f108e', fontWeight: 700, fontSize: '2.25rem', letterSpacing: '-0.015em' }}>
+      <span style={{ color: isDark ? '#c3c0ff' : '#1f108e', fontWeight: 700, fontSize: '2.25rem', letterSpacing: '-0.015em' }}>
         Caplander
       </span>
 
-      <div style={{ width: 192, height: 2, backgroundColor: '#e6e8ea', borderRadius: 9999, overflow: 'hidden' }}>
+      <div style={{ width: 192, height: 2, backgroundColor: isDark ? '#2c2f31' : '#e6e8ea', borderRadius: 9999, overflow: 'hidden' }}>
         <div
           style={{
             height: '100%',
-            backgroundColor: '#1f108e',
+            backgroundColor: isDark ? '#c3c0ff' : '#1f108e',
             borderRadius: 9999,
             transformOrigin: 'left center',
             animation: '_loading-bar 1.4s ease-in-out infinite',
