@@ -44,17 +44,35 @@ export function useNotifications() {
     const timers: ReturnType<typeof setTimeout>[] = [];
 
     for (const event of events) {
-      const alertTime = event.start - event.alert;
-      const delay = alertTime - now + tzOffsetMs;
-      if (delay < 0) continue;
       const snapshot = { ...event };
-      const timer = setTimeout(() => {
-        const body = `Starting at ${formatTime(snapshot.start % 86400000)}`;
-        showNotification(snapshot.name, { body, icon: '/favicon.ico', tag: snapshot.id });
-        dispatch(addNotified(snapshot.id));
-      }, delay);
 
-      timers.push(timer);
+      // Advance-alert timer (fires event.alert ms before start, skipped when alert is 0)
+      if (event.alert > 0) {
+        const alertDelay = event.start - event.alert - now + tzOffsetMs;
+        if (alertDelay >= 0) {
+          timers.push(
+            setTimeout(() => {
+              const body = `Starting at ${formatTime(snapshot.start % 86400000)}`;
+              showNotification(snapshot.name, { body, icon: '/favicon.ico', tag: `${snapshot.id}-alert` });
+            }, alertDelay),
+          );
+        }
+      }
+
+      // Start-time timer — fires the moment the event begins
+      const startDelay = event.start - now + tzOffsetMs;
+      if (startDelay >= 0) {
+        timers.push(
+          setTimeout(() => {
+            showNotification(`${snapshot.name} has started`, {
+              body: `Started at ${formatTime(snapshot.start % 86400000)}`,
+              icon: '/favicon.ico',
+              tag: `${snapshot.id}-started`,
+            });
+            dispatch(addNotified(snapshot.id));
+          }, startDelay),
+        );
+      }
     }
 
     return () => {

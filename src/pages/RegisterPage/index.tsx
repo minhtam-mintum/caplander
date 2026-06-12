@@ -18,7 +18,7 @@ export function RegisterPage() {
           <p className='text-body-md text-on-surface-variant'>
             Create your account to start managing
             <br />
-            your time and tasks.
+            events and never miss a start time.
           </p>
         </div>
 

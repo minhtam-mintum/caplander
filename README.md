@@ -1,6 +1,6 @@
-# Calendar Task Planner
+# Caplander
 
-A calendar and event management app built with React 19, TypeScript, and Vite. Supports four calendar views, event creation with rich text notes, label tagging, and browser push notifications.
+An event management app built with React 19, TypeScript, and Vite. Create and manage events across four calendar views, and receive browser announcements the moment each event starts.
 
 **Live demo:** [caplander.netlify.app](https://caplander.netlify.app)
 
@@ -11,7 +11,7 @@ A calendar and event management app built with React 19, TypeScript, and Vite. S
 - **Four calendar views** — Year, Month, Week, and Day
 - **Event management** — Create, edit, and delete events with title, date, start/end times, label, and rich text notes
 - **Labels** — Categorize events with custom color-coded labels
-- **Push notifications** — Browser notifications fire before events based on a configurable alert offset
+- **Event start announcements** — A timer fires a browser notification the moment each event starts; an optional alert offset can also notify you in advance
 - **Persistent storage** — Events are saved to `localStorage` and survive page reloads
 - **Rich text notes** — Powered by Lexical with bold, italic, lists, links, and code blocks
 - **Responsive layout** — Tailwind CSS 4 utility-first styling with SCSS modules for component-scoped styles

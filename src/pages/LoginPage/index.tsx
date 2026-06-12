@@ -30,9 +30,9 @@ export function LoginPage() {
           <div className='flex flex-col items-center gap-2 text-center'>
             <Logo />
             <p className='text-body-md text-on-surface-variant'>
-              Chronos System productivity suite. Sign in
+              Sign in to manage your events and get
               <br />
-              to manage your time and tasks.
+              notified the moment they start.
             </p>
           </div>
 
