@@ -1,11 +1,5 @@
-import { useEffect } from 'react';
-
 export function LoadingPage() {
   const isDark = document.documentElement.classList.contains('dark');
-
-  useEffect(() => {
-    document.getElementById('splash')?.remove();
-  }, []);
 
   return (
     <div
