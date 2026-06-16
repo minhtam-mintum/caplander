@@ -4,18 +4,15 @@ import {
   type IMonthCalendarHandle,
 } from 'app/components/molecules/Calendar/components/MonthCalendar';
 import { MonthPicker } from 'app/components/molecules/Calendar/components/MonthPicker';
-import { YearPicker } from 'app/components/molecules/Calendar/components/YearPicker';
 import { GhostButton } from 'app/components/molecules/Buttons/GhostButton';
 import { Toolbar } from 'app/components/molecules/Toolbar';
+import { YearPicker } from 'app/components/molecules/YearPicker';
+import { getDecadeStart } from 'app/components/molecules/YearPicker/utils';
 import { MONTH_NAMES } from 'app/utils/calendar';
 
 import { type ICalendarProps } from './types';
 
 type ViewMode = 'day' | 'month' | 'year';
-
-function getDecadeStart(year: number): number {
-  return Math.floor(year / 10) * 10;
-}
 
 export function Calendar({ defaultDate, minDate, onDayClick }: ICalendarProps) {
   const [viewDate, setViewDate] = useState(defaultDate ?? new Date());
@@ -127,7 +124,6 @@ export function Calendar({ defaultDate, minDate, onDayClick }: ICalendarProps) {
       )}
       {viewMode === 'year' && (
         <YearPicker
-          decadeStart={decadeStart}
           selectedYear={year}
           onYearClick={handleYearSelect}
         />

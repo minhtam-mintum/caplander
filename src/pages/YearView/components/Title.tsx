@@ -1,14 +1,10 @@
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { GhostButton } from 'app/components/molecules/Buttons/GhostButton';
 import { IconButton } from 'app/components/molecules/Buttons/IconButton';
+import { YearPicker } from 'app/components/molecules/YearPicker';
+import { getYearGroupStart, YEAR_GROUP_SIZE } from 'app/components/molecules/YearPicker/utils';
 import type { ITitleYearPageHandle, ITitleYearPageProps } from 'app/pages/YearView/types';
-
-const YEAR_GROUP_SIZE = 18;
-
-function getYearGroupStart(year: number) {
-  return Math.floor(year / YEAR_GROUP_SIZE) * YEAR_GROUP_SIZE;
-}
 
 export const TitleYearPage = forwardRef<ITitleYearPageHandle, ITitleYearPageProps>(
   function TitleYearPage({ defaultYear, onYearChange }, ref) {
@@ -16,10 +12,6 @@ export const TitleYearPage = forwardRef<ITitleYearPageHandle, ITitleYearPageProp
     const [isOpen, setIsOpen] = useState(false);
     const [yearGroupStart, setYearGroupStart] = useState(getYearGroupStart(defaultYear));
     const containerRef = useRef<HTMLDivElement>(null);
-    const yearOptions = useMemo(
-      () => Array.from({ length: YEAR_GROUP_SIZE }, (_, index) => yearGroupStart + index),
-      [yearGroupStart],
-    );
     const yearGroupEnd = yearGroupStart + YEAR_GROUP_SIZE - 1;
 
     useImperativeHandle(
@@ -106,25 +98,15 @@ export const TitleYearPage = forwardRef<ITitleYearPageHandle, ITitleYearPageProp
                 <ChevronRight size={16} />
               </IconButton>
             </div>
-            <div className='grid grid-cols-3 gap-2' role='listbox' aria-label='Select year'>
-              {yearOptions.map((option) => {
-                const isSelected = option === year;
-                return (
-                  <GhostButton
-                    key={option}
-                    role='option'
-                    aria-selected={isSelected}
-                    className={`w-full justify-center rounded-[10px]! px-3! py-3! text-body-md! ${
-                      isSelected
-                        ? 'bg-primary! text-on-primary!'
-                        : 'hover:bg-surface-container-high!'
-                    }`}
-                    onClick={() => handleSelectYear(option)}>
-                    {option}
-                  </GhostButton>
-                );
-              })}
-            </div>
+            <YearPicker
+              selectedYear={year}
+              startYear={yearGroupStart}
+              yearCount={YEAR_GROUP_SIZE}
+              className='gap-2 px-0'
+              buttonClassName='rounded-[10px]! text-body-md!'
+              unselectedButtonClassName='hover:bg-surface-container-high!'
+              onYearClick={handleSelectYear}
+            />
           </div>
         )}
         <p className='text-[15px] text-on-surface-variant mt-0.5'>Yearly Overview &amp; Heatmap</p>
