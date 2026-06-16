@@ -4,17 +4,15 @@ import {
   type IMonthCalendarHandle,
 } from 'app/components/molecules/Calendar/components/MonthCalendar';
 import { MonthPicker } from 'app/components/molecules/Calendar/components/MonthPicker';
-import { YearPicker } from 'app/components/molecules/Calendar/components/YearPicker';
+import { GhostButton } from 'app/components/molecules/Buttons/GhostButton';
 import { Toolbar } from 'app/components/molecules/Toolbar';
+import { YearPicker } from 'app/components/molecules/YearPicker';
+import { getDecadeStart } from 'app/components/molecules/YearPicker/utils';
 import { MONTH_NAMES } from 'app/utils/calendar';
 
 import { type ICalendarProps } from './types';
 
 type ViewMode = 'day' | 'month' | 'year';
-
-function getDecadeStart(year: number): number {
-  return Math.floor(year / 10) * 10;
-}
 
 export function Calendar({ defaultDate, minDate, onDayClick }: ICalendarProps) {
   const [viewDate, setViewDate] = useState(defaultDate ?? new Date());
@@ -79,23 +77,23 @@ export function Calendar({ defaultDate, minDate, onDayClick }: ICalendarProps) {
   const headerTitle =
     viewMode === 'day' ? (
       <div className='flex items-center gap-1'>
-        <button
-          className='text-label-lg font-semibold text-on-surface hover:text-primary transition-colors'
+        <GhostButton
+          className='rounded-sm! px-0! py-0! text-label-lg font-semibold text-on-surface hover:bg-transparent! hover:text-primary'
           onClick={() => setViewMode('month')}>
           {MONTH_NAMES[month]}
-        </button>
-        <button
-          className='text-label-lg font-semibold text-primary hover:opacity-70 transition-opacity'
+        </GhostButton>
+        <GhostButton
+          className='rounded-sm! px-0! py-0! text-label-lg font-semibold text-primary hover:bg-transparent! hover:opacity-70'
           onClick={() => setViewMode('year')}>
           {year}
-        </button>
+        </GhostButton>
       </div>
     ) : viewMode === 'month' ? (
-      <button
-        className='text-label-lg font-semibold text-on-surface hover:text-primary transition-colors'
+      <GhostButton
+        className='rounded-sm! px-0! py-0! text-label-lg font-semibold text-on-surface hover:bg-transparent! hover:text-primary'
         onClick={() => setViewMode('year')}>
         {year}
-      </button>
+      </GhostButton>
     ) : (
       <span className='text-label-lg font-semibold text-on-surface'>
         {decadeStart}–{decadeStart + 9}
@@ -126,7 +124,6 @@ export function Calendar({ defaultDate, minDate, onDayClick }: ICalendarProps) {
       )}
       {viewMode === 'year' && (
         <YearPicker
-          decadeStart={decadeStart}
           selectedYear={year}
           onYearClick={handleYearSelect}
         />

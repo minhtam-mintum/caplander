@@ -5,7 +5,11 @@ import { ROUTES } from 'app/constants/route';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import { Button } from 'app/components/atoms/Button';
 import { Logo } from 'app/components/atoms/Logo';
-import { EventModal, IEventModalHandle, type EventFormData } from 'app/components/organisms/EventModal';
+import {
+  EventModal,
+  IEventModalHandle,
+  type EventFormData,
+} from 'app/components/organisms/EventModal';
 import { AuthButton } from './components/AuthButton';
 import { CalendarNavTabs, type ICalendarNavTabsHandle } from './components/CalendarNavTabs';
 import { DarkModeToggle } from './components/DarkModeToggle';
@@ -23,7 +27,7 @@ export function AppHeader() {
 
   const handleSearchSelect = useCallback(
     (event: IEvent) => {
-      const activeView = navTabsRef.current?.getActiveView() ?? ROUTES.MONTH;
+      const activeView = navTabsRef.current?.getActiveView() || ROUTES.MONTH;
       navigate(activeView, { state: { seekDate: event.start } });
       eventModalRef.current?.open({
         id: event.id,

@@ -16,7 +16,7 @@ vi.mock('app/services/api', async (importOriginal) => {
 
 function makeWrapper(store: ReturnType<typeof makeStore>) {
   return function Wrapper({ children }: PropsWithChildren) {
-    return createElement(Provider, { store }, children);
+    return createElement(Provider, { store, children });
   };
 }
 
@@ -60,17 +60,21 @@ describe('useLabels', () => {
   });
 
   it('addLabel for anonymous user adds to local state', async () => {
+    const generatedId = '00000000-0000-4000-8000-000000000000';
+    vi.spyOn(crypto, 'randomUUID').mockReturnValue(generatedId);
     const store = makeStore();
     const { result } = renderHook(() => useLabels(), { wrapper: makeWrapper(store) });
 
     const newLabel = { name: 'Test', value: 'test', color: '#abc' };
-    let returned: typeof newLabel | undefined;
+    const createdLabel = { ...newLabel, value: generatedId };
+    let returned: typeof createdLabel | undefined;
     await act(async () => {
       returned = await result.current.addLabel(newLabel);
     });
 
-    expect(result.current.labels).toContainEqual(newLabel);
-    expect(returned).toEqual(newLabel);
+    expect(crypto.randomUUID).toHaveBeenCalled();
+    expect(result.current.labels).toContainEqual(createdLabel);
+    expect(returned).toEqual(createdLabel);
     expect(api.apiCreateLabel).not.toHaveBeenCalled();
   });
 

@@ -3,7 +3,6 @@ import { Provider } from 'react-redux';
 import type { PropsWithChildren } from 'react';
 import { makeStore } from 'app/test/utils';
 import { useNotifications } from 'app/hooks/useNotifications';
-import { addEvent } from 'app/store/slices/eventSlice';
 import type { IEvent } from 'app/store/slices/eventSlice';
 
 const preloadedState = {

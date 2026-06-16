@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { SearchBar } from 'app/components/molecules/Inputs/SearchBar';
+import { EventSearchResults } from 'app/components/organisms/AppHeader/components/EventSearch/components/EventSearchResults';
 import { useAppSelector } from 'app/store';
 import type { IEvent } from 'app/store/slices/eventSlice';
 
@@ -59,27 +60,7 @@ export function EventSearch({ onEventSelect }: IEventSearchProps) {
         }}
       />
       {open && results.length > 0 && (
-        <div className='absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-outline-variant overflow-hidden z-50'>
-          {results.map((event) => (
-            <button
-              key={event.id}
-              type='button'
-              className='w-full px-4 py-2.5 text-left hover:bg-surface-container-high flex items-center gap-3 transition-colors'
-              onMouseDown={(e) => {
-                e.preventDefault();
-                handleSelect(event);
-              }}>
-              <span className='flex-1 text-body-md text-on-surface truncate'>{event.name}</span>
-              <span className='text-label-sm text-on-surface-variant shrink-0'>
-                {new Date(event.start).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
-              </span>
-            </button>
-          ))}
-        </div>
+        <EventSearchResults events={results} onEventSelect={handleSelect} />
       )}
     </div>
   );

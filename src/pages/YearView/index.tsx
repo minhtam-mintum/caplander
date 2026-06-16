@@ -61,7 +61,7 @@ export function YearView() {
       <DayDrawer ref={drawerRef} onAddEvent={handleAddEvent} onEventClick={handleEventClick} />
       <Toolbar
         align='end'
-        title={<TitleYearPage defaultYear={defaultYear} ref={titleRef} />}
+        title={<TitleYearPage defaultYear={defaultYear} ref={titleRef} onYearChange={handleSync} />}
         onPrev={handlePrev}
         onNext={handleNext}
         onToday={handleToday}

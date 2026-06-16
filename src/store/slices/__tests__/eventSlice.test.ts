@@ -3,7 +3,7 @@ import type { IEvent } from 'app/store/slices/eventSlice';
 
 const ev1: IEvent = { id: '1', name: 'Meeting', start: 1000, end: 2000, alert: 0, label: 'work', notes: '' };
 const ev2: IEvent = { id: '2', name: 'Lunch', start: 3000, end: 4000, alert: 0, label: 'personal', notes: '' };
-const empty = { items: [] };
+const empty = { items: [], loading: false, fetchedYears: [] };
 
 describe('eventSlice', () => {
   describe('addEvent', () => {

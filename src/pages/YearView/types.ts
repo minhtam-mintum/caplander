@@ -4,7 +4,7 @@ export interface IFullMonthInYearHandle {
   onSetYear: (newYear: number) => void;
   /** Resets the displayed year back to `defaultYear` (falls back to the current year if `defaultYear` was not provided). */
   onResetYear: VoidFunction;
-  getYear: VoidFunction;
+  getYear: () => number;
 }
 
 export interface IFullMonthInYearProps {
@@ -18,4 +18,5 @@ export interface ITitleYearPageHandle {
 
 export interface ITitleYearPageProps {
   defaultYear: number;
+  onYearChange: (year: number) => void;
 }
