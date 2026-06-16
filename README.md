@@ -71,6 +71,7 @@ src/
 
 - Component props interfaces follow the `I<ComponentName>Props` naming pattern.
 - Imports use the `app/*` alias (maps to `src/`) — no `../` relative traversal.
+- Tailwind CSS important utilities use trailing `!` syntax, e.g. `size-9!` and `hover:bg-surface-container-high!`; do not use `!size-9` or `hover:!bg-surface-container-high`.
 - State is colocated as close to its usage as possible; parent-to-child control uses `forwardRef` + `useImperativeHandle`.
 
 See [CLAUDE.md](CLAUDE.md) for full coding conventions.

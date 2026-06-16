@@ -100,7 +100,7 @@ export const TitleYearPage = forwardRef<ITitleYearPageHandle, ITitleYearPageProp
                 {yearGroupStart} - {yearGroupEnd}
               </p>
               <IconButton
-                className='!size-9 !rounded-[10px] hover:!bg-surface-container-high'
+                className='size-9! rounded-[10px]! hover:bg-surface-container-high!'
                 aria-label='Next year group'
                 onClick={handleNextYearGroup}>
                 <ChevronRight size={16} />
@@ -114,10 +114,10 @@ export const TitleYearPage = forwardRef<ITitleYearPageHandle, ITitleYearPageProp
                     key={option}
                     role='option'
                     aria-selected={isSelected}
-                    className={`w-full justify-center !rounded-[10px] !px-3 !py-3 !text-body-md ${
+                    className={`w-full justify-center rounded-[10px]! px-3! py-3! text-body-md! ${
                       isSelected
-                        ? '!bg-primary !text-on-primary'
-                        : 'hover:!bg-surface-container-high'
+                        ? 'bg-primary! text-on-primary!'
+                        : 'hover:bg-surface-container-high!'
                     }`}
                     onClick={() => handleSelectYear(option)}>
                     {option}
