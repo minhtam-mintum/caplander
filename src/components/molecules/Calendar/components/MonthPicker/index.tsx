@@ -19,7 +19,7 @@ export function MonthPicker({ selectedMonth, onMonthClick }: IMonthPickerProps) 
             key={name}
             onClick={() => onMonthClick(i)}
             className={cn(
-              'w-full! rounded-sm! px-3! py-3! text-body-md font-medium',
+              'w-full! rounded-sm! px-3! py-3! text-body-md font-medium justify-center',
               isSelected
                 ? 'bg-primary! text-on-primary!'
                 : 'text-on-surface hover:bg-surface-container-high!',
