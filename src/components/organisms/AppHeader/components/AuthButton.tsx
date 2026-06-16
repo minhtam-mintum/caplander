@@ -80,7 +80,7 @@ function UserDropdown({ onClose }: { onClose: () => void }) {
 export function AuthButton() {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { user, isAnonymous } = useAppSelector((s) => s.auth);
+  const { user } = useAppSelector((s) => s.auth);
 
   useEffect(() => {
     if (!isOpen) return;

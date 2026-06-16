@@ -1,3 +1,6 @@
+import { GhostButton } from 'app/components/molecules/Buttons/GhostButton';
+import { cn } from 'app/utils/cn';
+
 interface IYearPickerProps {
   decadeStart: number;
   selectedYear: number;
@@ -14,14 +17,19 @@ export function YearPicker({ decadeStart, selectedYear, onYearClick }: IYearPick
         const isSelected = year === selectedYear;
         const isOutside = year < decadeStart || year > decadeStart + 9;
         return (
-          <button
+          <GhostButton
             key={year}
             onClick={() => onYearClick(year)}
-            className={`py-3 rounded-sm text-body-md font-medium transition-colors
-              ${isSelected ? 'bg-primary text-on-primary' : isOutside ? 'text-on-surface-variant hover:bg-surface-container-high' : 'text-on-surface hover:bg-surface-container-high'}
-            `}>
+            className={cn(
+              'w-full! rounded-sm! px-3! py-3! text-body-md font-medium justify-center',
+              isSelected
+                ? 'bg-primary! text-on-primary!'
+                : isOutside
+                  ? 'text-on-surface-variant hover:bg-surface-container-high!'
+                  : 'text-on-surface hover:bg-surface-container-high!',
+            )}>
             {year}
-          </button>
+          </GhostButton>
         );
       })}
     </div>

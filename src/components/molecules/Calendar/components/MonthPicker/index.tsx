@@ -1,4 +1,6 @@
+import { GhostButton } from 'app/components/molecules/Buttons/GhostButton';
 import { MONTH_NAMES } from 'app/utils/calendar';
+import { cn } from 'app/utils/cn';
 
 const SHORT_MONTH_NAMES = MONTH_NAMES.map((m) => m.slice(0, 3));
 
@@ -13,14 +15,17 @@ export function MonthPicker({ selectedMonth, onMonthClick }: IMonthPickerProps) 
       {SHORT_MONTH_NAMES.map((name, i) => {
         const isSelected = i === selectedMonth;
         return (
-          <button
+          <GhostButton
             key={name}
             onClick={() => onMonthClick(i)}
-            className={`py-3 rounded-sm text-body-md font-medium transition-colors
-              ${isSelected ? 'bg-primary text-on-primary' : 'text-on-surface hover:bg-surface-container-high'}
-            `}>
+            className={cn(
+              'w-full! rounded-sm! px-3! py-3! text-body-md font-medium',
+              isSelected
+                ? 'bg-primary! text-on-primary!'
+                : 'text-on-surface hover:bg-surface-container-high!',
+            )}>
             {name}
-          </button>
+          </GhostButton>
         );
       })}
     </div>
