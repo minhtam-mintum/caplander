@@ -5,8 +5,9 @@ import { useAppDispatch, useAppSelector } from 'app/store';
 import { markAsRead, markAllAsRead } from 'app/store/slices/notificationSlice';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import { IconButton } from 'app/components/molecules/Buttons/IconButton';
+import { NotificationDropdown } from 'app/components/organisms/AppHeader/components/NotificationPanel/components/NotificationDropdown';
 import type { EventFormData } from 'app/components/organisms/EventModal';
-import { formatRelativeTime, stripHtml, toFormData } from './utils';
+import { toFormData } from './utils';
 
 interface INotificationPanelProps {
   onEventClick: (data: Partial<EventFormData>) => void;
@@ -71,54 +72,15 @@ export const NotificationPanel = memo(function NotificationPanel({
       {open &&
         anchorRect &&
         createPortal(
-          <div
+          <NotificationDropdown
             ref={panelRef}
-            className='fixed z-40 w-72 bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant overflow-hidden'
-            style={{ top, right }}>
-            <div className='flex items-center justify-between px-4 py-3 border-b border-outline-variant'>
-              <h3 className='text-title-sm font-semibold text-on-surface'>Notifications</h3>
-              <button
-                className='text-label-sm text-primary hover:underline'
-                onClick={handleMarkAllRead}>
-                Mark all as read
-              </button>
-            </div>
-            <div className='max-h-96 overflow-y-auto divide-y divide-outline-variant'>
-              {upcoming.length === 0 ? (
-                <p className='px-4 py-6 text-body-sm text-on-surface-variant text-center'>
-                  No events
-                </p>
-              ) : (
-                upcoming.map((event) => {
-                  const isUnread = !readIds.includes(event.id);
-                  const plainNotes = stripHtml(event.notes);
-                  return (
-                    <button
-                      key={event.id}
-                      className='w-full text-left px-4 py-3 hover:bg-surface-container transition-colors flex items-start gap-3'
-                      onClick={() => handleItemClick(event)}>
-                      <span
-                        className={`mt-1.5 size-2 rounded-full shrink-0 ${isUnread ? 'bg-primary' : 'bg-transparent'}`}
-                      />
-                      <div className='min-w-0 flex-1'>
-                        <p className='text-body-sm font-semibold text-on-surface truncate'>
-                          {event.name}
-                        </p>
-                        {plainNotes && (
-                          <p className='text-body-sm text-on-surface-variant truncate'>
-                            {plainNotes}
-                          </p>
-                        )}
-                        <p className='text-label-sm text-on-surface-variant mt-0.5'>
-                          {formatRelativeTime(event.start)}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          </div>,
+            events={upcoming}
+            readIds={readIds}
+            top={top}
+            right={right}
+            onEventClick={handleItemClick}
+            onMarkAllRead={handleMarkAllRead}
+          />,
           document.body,
         )}
     </>
