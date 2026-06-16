@@ -27,7 +27,7 @@ export function AppHeader() {
 
   const handleSearchSelect = useCallback(
     (event: IEvent) => {
-      const activeView = navTabsRef.current?.getActiveView() ?? ROUTES.MONTH;
+      const activeView = navTabsRef.current?.getActiveView() || ROUTES.MONTH;
       navigate(activeView, { state: { seekDate: event.start } });
       eventModalRef.current?.open({
         id: event.id,

@@ -1,23 +1,20 @@
 import type { PropsWithChildren, ReactElement } from 'react';
-import { render, type RenderOptions } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { configureStore } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import eventReducer from 'app/store/slices/eventSlice';
 import notificationReducer from 'app/store/slices/notificationSlice';
 import authReducer from 'app/store/slices/authSlice';
+import labelReducer from 'app/store/slices/labelSlice';
 import type { RootState } from 'app/store';
+import type { DeepPartial, IRenderOptions } from './types';
 
-export function makeStore(preloadedState?: Partial<RootState>) {
+export function makeStore(preloadedState?: DeepPartial<RootState>) {
   return configureStore({
-    reducer: { events: eventReducer, notifications: notificationReducer, auth: authReducer },
+    reducer: { events: eventReducer, notifications: notificationReducer, auth: authReducer, labels: labelReducer },
     preloadedState: preloadedState as RootState,
   });
-}
-
-interface IRenderOptions extends Omit<RenderOptions, 'wrapper'> {
-  preloadedState?: Partial<RootState>;
-  initialRoute?: string;
 }
 
 export function renderWithProviders(
