@@ -9,6 +9,7 @@ import type { ITitleMonthPageHandle, IMonthViewGridHandle } from './types';
 import { MONTH_NAMES } from 'app/utils/calendar';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import { useSeekDate } from 'app/hooks/useSeekDate';
+import { getEventFormData } from 'app/utils/event';
 
 const formatTitle = (date: Date) => `${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
 
@@ -21,19 +22,7 @@ export function MonthView() {
   const dateCursor = useRef(defaultDate);
 
   const handleEventClick = useCallback((event: IEvent) => {
-    modalRef.current?.open({
-      id: event.id,
-      name: event.name,
-      startDate: new Date(Math.floor(event.start / 86400000) * 86400000),
-      startTime: event.start % 86400000,
-      endDate: new Date(Math.floor(event.end / 86400000) * 86400000),
-      endTime: event.end % 86400000,
-      alert: event.alert,
-      label: event.label,
-      labelName: event.labelName,
-      labelColor: event.labelColor,
-      notes: event.notes,
-    });
+    modalRef.current?.open(getEventFormData(event));
   }, []);
 
   const handleDayClick = useCallback((date: Date) => {

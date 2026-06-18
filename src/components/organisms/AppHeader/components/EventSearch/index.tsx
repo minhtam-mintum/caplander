@@ -22,7 +22,7 @@ export function EventSearch({ onEventSelect }: IEventSearchProps) {
 
   const trimmed = debouncedQuery.trim().toLowerCase();
   const results = trimmed
-    ? events.filter((e) => e.name.toLowerCase().includes(trimmed)).slice(0, 8)
+    ? events.filter((e) => e.title.toLowerCase().includes(trimmed)).slice(0, 8)
     : [];
 
   const handleSelect = useCallback(

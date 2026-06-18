@@ -22,6 +22,13 @@ import { useAppDispatch, useAppSelector } from 'app/store';
 import { updateEventThunk } from 'app/store/slices/eventSlice';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import type { DragInfo } from 'app/pages/WeekView/types';
+import {
+  getEventEndMs,
+  getEventId,
+  getEventLabelId,
+  getEventStartMs,
+  withEventTime,
+} from 'app/utils/event';
 
 const DEFAULT_TIMED_DURATION = 3_600_000; // 1 hour in ms — default when converting from all-day
 
@@ -77,8 +84,8 @@ export const TimeGrid = ({
       const gridDiv = gridRefs.current.get(dateStr);
       if (!gridDiv) return;
       gridDiv.setPointerCapture(e.pointerId);
-      resizeInfoRef.current = { id: event.id, startMs: event.start, dateStr };
-      setResizeTarget({ id: event.id, dateStr, newEndMs: event.end });
+      resizeInfoRef.current = { id: getEventId(event), startMs: getEventStartMs(event), dateStr };
+      setResizeTarget({ id: getEventId(event), dateStr, newEndMs: getEventEndMs(event) });
     },
     [],
   );
@@ -113,8 +120,8 @@ export const TimeGrid = ({
       if (!ri || ri.dateStr !== dateStr) return;
       setResizeTarget((rt) => {
         if (rt) {
-          const event = events.find((ev) => ev.id === ri.id);
-          if (event) dispatch(updateEventThunk({ ...event, end: rt.newEndMs }));
+          const event = events.find((ev) => getEventId(ev) === ri.id);
+          if (event) dispatch(updateEventThunk(withEventTime(event, getEventStartMs(event), rt.newEndMs)));
         }
         return null;
       });
@@ -129,13 +136,13 @@ export const TimeGrid = ({
       Math.round((((e.clientY - rect.top) / HOUR_HEIGHT) * 60) / SNAP_MIN) * SNAP_MIN;
     onDragStart({
       type: 'timed',
-      id: event.id,
+      id: getEventId(event),
       grabOffsetMin: Math.max(0, grabOffsetMin),
-      durationMs: event.end - event.start,
+      durationMs: getEventEndMs(event) - getEventStartMs(event),
     });
     e.dataTransfer.effectAllowed = 'move';
     try {
-      e.dataTransfer.setData('text/plain', event.id);
+      e.dataTransfer.setData('text/plain', getEventId(event));
     } catch {
       /* */
     }
@@ -173,15 +180,13 @@ export const TimeGrid = ({
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (!dragInfo || !dragTarget) return;
-    const event = events.find((ev) => ev.id === dragInfo.id);
+    const event = events.find((ev) => getEventId(ev) === dragInfo.id);
     if (event) {
       const durationMs = dragInfo.type === 'timed' ? dragInfo.durationMs : DEFAULT_TIMED_DURATION;
       dispatch(
-        updateEventThunk({
-          ...event,
-          start: dragTarget.newStartMs,
-          end: dragTarget.newStartMs + durationMs,
-        }),
+        updateEventThunk(
+          withEventTime(event, dragTarget.newStartMs, dragTarget.newStartMs + durationMs),
+        ),
       );
     }
     onDragEnd();
@@ -198,19 +203,19 @@ export const TimeGrid = ({
 
         let resizePreviewCard: React.ReactNode = null;
         if (resizeTarget?.dateStr === dateStr && resizeInfoRef.current) {
-          const src = events.find((ev) => ev.id === resizeTarget.id);
+          const src = events.find((ev) => getEventId(ev) === resizeTarget.id);
           if (src) {
-            const [psh, psm] = clampHour(...msToUtcHM(src.start), START_HOUR, END_HOUR);
+            const [psh, psm] = clampHour(...msToUtcHM(getEventStartMs(src)), START_HOUR, END_HOUR);
             const [peh, pem] = clampHour(...msToUtcHM(resizeTarget.newEndMs), START_HOUR, END_HOUR);
             const pStart = toTimeString(psh, psm);
             const pEnd = toTimeString(peh, pem);
             if (pStart !== pEnd) {
               resizePreviewCard = (
                 <WeekEventCard
-                  title={src.name}
+                  title={src.title}
                   startTime={pStart}
                   endTime={pEnd}
-                  color={labelColorMap[src.label] ?? DEFAULT_COLOR}
+                  color={labelColorMap[getEventLabelId(src)] ?? DEFAULT_COLOR}
                   offsetTop={timeToOffset(pStart, START_HOUR, HOUR_HEIGHT)}
                   height={durationToHeight(pStart, pEnd, HOUR_HEIGHT)}
                   className='pointer-events-none z-20 ring-2 ring-inset ring-current'
@@ -223,7 +228,7 @@ export const TimeGrid = ({
 
         let previewCard: React.ReactNode = null;
         if (dragTarget?.dateStr === dateStr && dragInfo) {
-          const src = events.find((ev) => ev.id === dragInfo.id);
+          const src = events.find((ev) => getEventId(ev) === dragInfo.id);
           if (src) {
             const durationMs =
               dragInfo.type === 'timed' ? dragInfo.durationMs : DEFAULT_TIMED_DURATION;
@@ -242,10 +247,10 @@ export const TimeGrid = ({
             if (pStart !== pEnd) {
               previewCard = (
                 <WeekEventCard
-                  title={src.name}
+                  title={src.title}
                   startTime={pStart}
                   endTime={pEnd}
-                  color={labelColorMap[src.label] ?? DEFAULT_COLOR}
+                  color={labelColorMap[getEventLabelId(src)] ?? DEFAULT_COLOR}
                   offsetTop={timeToOffset(pStart, START_HOUR, HOUR_HEIGHT)}
                   height={durationToHeight(pStart, pEnd, HOUR_HEIGHT)}
                   className='pointer-events-none z-20 ring-2 ring-inset ring-current'
@@ -284,15 +289,16 @@ export const TimeGrid = ({
                 />
               ))}
               {dayEvents.map((event) => {
-                const [sh, sm] = clampHour(...msToUtcHM(event.start), START_HOUR, END_HOUR);
-                const [eh, em] = clampHour(...msToUtcHM(event.end), START_HOUR, END_HOUR);
+                const eventId = getEventId(event);
+                const [sh, sm] = clampHour(...msToUtcHM(getEventStartMs(event)), START_HOUR, END_HOUR);
+                const [eh, em] = clampHour(...msToUtcHM(getEventEndMs(event)), START_HOUR, END_HOUR);
                 const startTime = toTimeString(sh, sm);
                 const endTime = toTimeString(eh, em);
                 if (startTime === endTime) return null;
-                const color = labelColorMap[event.label] ?? DEFAULT_COLOR;
-                const isDragging = dragInfo?.id === event.id;
-                const isResizing = resizeTarget?.id === event.id;
-                const layout = timedEventLayouts[dateStr]?.get(event.id);
+                const color = labelColorMap[getEventLabelId(event)] ?? DEFAULT_COLOR;
+                const isDragging = dragInfo?.id === eventId;
+                const isResizing = resizeTarget?.id === eventId;
+                const layout = timedEventLayouts[dateStr]?.get(eventId);
                 const overlapStyle: React.CSSProperties =
                   layout && layout.totalCols > 1
                     ? {
@@ -303,8 +309,8 @@ export const TimeGrid = ({
                     : {};
                 return (
                   <WeekEventCard
-                    key={event.id}
-                    title={event.name}
+                    key={eventId}
+                    title={event.title}
                     startTime={startTime}
                     endTime={endTime}
                     color={color}

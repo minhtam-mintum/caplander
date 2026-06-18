@@ -9,23 +9,25 @@ import type { IEvent } from 'app/store/slices/eventSlice';
 const DAY = new Date(Date.UTC(2024, 0, 15)); // 2024-01-15
 
 const EVENT_ON_DAY: IEvent = {
-  id: 'e1',
-  name: 'Morning Sync',
-  start: Date.UTC(2024, 0, 15, 9, 0),  // 09:00 UTC
-  end:   Date.UTC(2024, 0, 15, 10, 0), // 10:00 UTC
+  _id: 'e1',
+  title: 'Morning Sync',
+  startDate: new Date(Date.UTC(2024, 0, 15, 9, 0)).toISOString(),  // 09:00 UTC
+  endDate: new Date(Date.UTC(2024, 0, 15, 10, 0)).toISOString(), // 10:00 UTC
+  allDay: false,
   alert: 0,
-  label: '',
-  notes: '',
+  labelId: '',
+  description: '',
 };
 
 const EVENT_OTHER_DAY: IEvent = {
-  id: 'e2',
-  name: 'Other Day Event',
-  start: Date.UTC(2024, 0, 16, 9, 0),
-  end:   Date.UTC(2024, 0, 16, 10, 0),
+  _id: 'e2',
+  title: 'Other Day Event',
+  startDate: new Date(Date.UTC(2024, 0, 16, 9, 0)).toISOString(),
+  endDate: new Date(Date.UTC(2024, 0, 16, 10, 0)).toISOString(),
+  allDay: false,
   alert: 0,
-  label: '',
-  notes: '',
+  labelId: '',
+  description: '',
 };
 
 const storeState = {

@@ -38,15 +38,16 @@ export function EventFields({
     const start = data.startDate.getTime() + data.startTime;
     const end = data.endDate.getTime() + data.endTime;
     const eventData = {
-      name: data.name,
-      start,
-      end,
+      title: data.name,
+      startDate: new Date(start).toISOString(),
+      endDate: new Date(end).toISOString(),
       alert: data.alert,
-      label: data.label,
-      notes: data.notes,
+      labelId: data.label,
+      description: data.notes || undefined,
+      allDay: false,
     };
     if (data.id) {
-      await dispatch(updateEventThunk({ id: data.id, ...eventData })).unwrap();
+      await dispatch(updateEventThunk({ _id: data.id, ...eventData })).unwrap();
     } else {
       await dispatch(createEventThunk(eventData)).unwrap();
     }

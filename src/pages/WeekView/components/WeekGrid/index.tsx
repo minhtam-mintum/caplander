@@ -15,6 +15,7 @@ import { WeekDayHeaders } from './WeekDayHeaders';
 import { AllDayRow } from './AllDayRow';
 import { TimeGrid } from './TimeGrid';
 import type { DragInfo, IWeekGridHandle, IWeekGridProps } from '../../types';
+import { getEventStartMs } from 'app/utils/event';
 
 export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function WeekGrid(
   { onWeekChange, onEventClick },
@@ -65,7 +66,7 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
       if (isMultiDay(ev)) {
         allDay.push(ev);
       } else {
-        const ds = dayToDateStr(new Date(ev.start));
+        const ds = dayToDateStr(new Date(getEventStartMs(ev)));
         (timed[ds] ??= []).push(ev);
       }
     }

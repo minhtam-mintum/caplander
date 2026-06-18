@@ -4,55 +4,12 @@ import { apiCreateEvent, apiUpdateEvent, apiGetEvents } from 'app/services/api';
 
 import { setAuth, logout, setAnonymous } from './authSlice';
 
-export interface IEvent {
-  id: string;
-  name: string;
-  start: number;
-  end: number;
-  alert: number;
-  label: string;
-  labelName?: string;
-  labelColor?: string;
-  notes: string;
-}
+export interface IEvent extends IApiEvent {}
 
 interface IEventState {
   items: IEvent[];
   loading: boolean;
   fetchedYears: number[];
-}
-
-// ─── Mapping helpers ──────────────────────────────────────────────────────────
-
-function resolveLabelId(labelId: string | { _id: string } | undefined): string {
-  if (!labelId) return '';
-  return typeof labelId === 'string' ? labelId : labelId._id;
-}
-
-function mapApiEventToLocal(apiEvent: IApiEvent): IEvent {
-  const labelId = apiEvent.labelId;
-  return {
-    id: apiEvent._id,
-    name: apiEvent.title,
-    start: new Date(apiEvent.startDate).getTime(),
-    end: new Date(apiEvent.endDate).getTime(),
-    alert: 0,
-    label: resolveLabelId(labelId),
-    labelName: typeof labelId === 'object' ? labelId.name : undefined,
-    labelColor: typeof labelId === 'object' ? labelId.color : undefined,
-    notes: apiEvent.description ?? '',
-  };
-}
-
-export function mapLocalToApiPayload(event: Omit<IEvent, 'id'>) {
-  return {
-    title: event.name,
-    startDate: new Date(event.start).toISOString(),
-    endDate: new Date(event.end).toISOString(),
-    labelId: event.label || undefined,
-    description: event.notes || undefined,
-    allDay: false as const,
-  };
 }
 
 // ─── Thunks ───────────────────────────────────────────────────────────────────
@@ -72,8 +29,8 @@ export const fetchEventsThunk = createAsyncThunk<
   'events/fetch',
   async (params) => {
     const year = parseInt(params.from.slice(0, 4), 10);
-    const apiEvents = await apiGetEvents(params);
-    return { events: apiEvents.map(mapApiEventToLocal), year };
+    const events = await apiGetEvents(params);
+    return { events, year };
   },
   {
     condition: (params, { getState }) => {
@@ -87,15 +44,15 @@ export const fetchEventsThunk = createAsyncThunk<
 
 export const createEventThunk = createAsyncThunk<
   IEvent,
-  Omit<IEvent, 'id'>,
+  Omit<IEvent, '_id'>,
   { state: { auth: AuthSliceState } }
 >('events/create', async (data, { getState }) => {
   const { auth } = getState();
   if (!auth.user || auth.isAnonymous) {
-    return { id: crypto.randomUUID(), ...data };
+    return { _id: crypto.randomUUID(), ...data };
   }
-  const apiEvent = await apiCreateEvent(mapLocalToApiPayload(data));
-  return mapApiEventToLocal(apiEvent);
+  const apiEvent = await apiCreateEvent(data);
+  return { ...apiEvent, alert: data.alert };
 });
 
 export const updateEventThunk = createAsyncThunk<
@@ -107,8 +64,8 @@ export const updateEventThunk = createAsyncThunk<
   if (!auth.user || auth.isAnonymous) {
     return data;
   }
-  const apiEvent = await apiUpdateEvent(data.id, mapLocalToApiPayload(data));
-  return mapApiEventToLocal(apiEvent);
+  const apiEvent = await apiUpdateEvent(data._id, data);
+  return { ...apiEvent, alert: data.alert };
 });
 
 // ─── Slice ────────────────────────────────────────────────────────────────────
@@ -130,11 +87,11 @@ const eventSlice = createSlice({
       state.items.push(action.payload);
     },
     updateEvent: (state, action: PayloadAction<IEvent>) => {
-      const index = state.items.findIndex((e) => e.id === action.payload.id);
+      const index = state.items.findIndex((e) => e._id === action.payload._id);
       if (index !== -1) state.items[index] = action.payload;
     },
     removeEvent: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter((e) => e.id !== action.payload);
+      state.items = state.items.filter((e) => e._id !== action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -157,7 +114,7 @@ const eventSlice = createSlice({
       .addCase(fetchEventsThunk.fulfilled, (state, action) => {
         const { events, year } = action.payload;
         state.items = [
-          ...state.items.filter((e) => new Date(e.start).getFullYear() !== year),
+          ...state.items.filter((e) => new Date(e.startDate).getFullYear() !== year),
           ...events,
         ];
         state.fetchedYears.push(year);
@@ -170,7 +127,7 @@ const eventSlice = createSlice({
         state.items.push(action.payload);
       })
       .addCase(updateEventThunk.fulfilled, (state, action) => {
-        const index = state.items.findIndex((e) => e.id === action.payload.id);
+        const index = state.items.findIndex((e) => e._id === action.payload._id);
         if (index !== -1) state.items[index] = action.payload;
       });
   },

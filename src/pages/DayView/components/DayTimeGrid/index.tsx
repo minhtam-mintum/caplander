@@ -7,6 +7,7 @@ import { ALL_DAY_GAP, ALL_DAY_PAD, ALL_DAY_ROW_H } from 'app/pages/WeekView/cons
 import { DayAllDayRow } from './DayAllDayRow';
 import { DayColumn } from './DayColumn';
 import type { DayDragState, IDayTimeGridHandle, IDayTimeGridProps } from './types';
+import { getEventEndMs, getEventStartMs } from 'app/utils/event';
 
 export type { IDayTimeGridHandle };
 
@@ -60,11 +61,13 @@ export const DayTimeGrid = forwardRef<IDayTimeGridHandle, IDayTimeGridProps>(fun
     const allDay = [] as typeof events;
     const timed = [] as typeof events;
     for (const ev of events) {
+      const start = getEventStartMs(ev);
+      const end = getEventEndMs(ev);
       if (isMultiDay(ev)) {
-        const evStartDs = dayToDateStr(new Date(ev.start));
-        const evEndDs = dayToDateStr(new Date(ev.end - 1));
+        const evStartDs = dayToDateStr(new Date(start));
+        const evEndDs = dayToDateStr(new Date(end - 1));
         if (evStartDs <= dateStr && dateStr <= evEndDs) allDay.push(ev);
-      } else if (dayToDateStr(new Date(ev.start)) === dateStr) {
+      } else if (dayToDateStr(new Date(start)) === dateStr) {
         timed.push(ev);
       }
     }

@@ -5,8 +5,26 @@ import { renderWithProviders } from 'app/test/utils';
 import type { IEvent } from 'app/store/slices/eventSlice';
 
 const MOCK_EVENTS: IEvent[] = [
-  { id: '1', name: 'Team Meeting', start: 1700000000000, end: 1700003600000, alert: 0, label: '', notes: '' },
-  { id: '2', name: 'Lunch Break', start: 1700050000000, end: 1700053600000, alert: 0, label: '', notes: '' },
+  {
+    _id: '1',
+    title: 'Team Meeting',
+    startDate: new Date(1700000000000).toISOString(),
+    endDate: new Date(1700003600000).toISOString(),
+    allDay: false,
+    alert: 0,
+    labelId: '',
+    description: '',
+  },
+  {
+    _id: '2',
+    title: 'Lunch Break',
+    startDate: new Date(1700050000000).toISOString(),
+    endDate: new Date(1700053600000).toISOString(),
+    allDay: false,
+    alert: 0,
+    labelId: '',
+    description: '',
+  },
 ];
 
 const storeState = {

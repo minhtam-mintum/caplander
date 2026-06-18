@@ -2,6 +2,7 @@ import { forwardRef } from 'react';
 import { GhostButton } from 'app/components/molecules/Buttons/GhostButton';
 import { NotificationItem } from 'app/components/organisms/AppHeader/components/NotificationPanel/components/NotificationItem';
 import type { IEvent } from 'app/store/slices/eventSlice';
+import { getEventId } from 'app/utils/event';
 
 interface INotificationDropdownProps {
   events: IEvent[];
@@ -36,9 +37,9 @@ export const NotificationDropdown = forwardRef<HTMLDivElement, INotificationDrop
           ) : (
             events.map((event) => (
               <NotificationItem
-                key={event.id}
+                key={getEventId(event)}
                 event={event}
-                isUnread={!readIds.includes(event.id)}
+                isUnread={!readIds.includes(getEventId(event))}
                 onClick={onEventClick}
               />
             ))

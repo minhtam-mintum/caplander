@@ -13,7 +13,16 @@ import { DAY_MS } from 'app/pages/MonthView/utils';
 import type { IEvent } from 'app/store/slices/eventSlice';
 
 function mkEvent(id: string, start: number, end: number): IEvent {
-  return { id, name: id, start, end, alert: 0, label: '', notes: '' };
+  return {
+    _id: id,
+    title: id,
+    startDate: new Date(start).toISOString(),
+    endDate: new Date(end).toISOString(),
+    allDay: false,
+    alert: 0,
+    labelId: '',
+    description: '',
+  };
 }
 
 describe('getWeekDays', () => {

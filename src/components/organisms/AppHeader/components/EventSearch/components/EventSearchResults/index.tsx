@@ -1,6 +1,7 @@
 import type { MouseEvent } from 'react';
 import { GhostButton } from 'app/components/molecules/Buttons/GhostButton';
 import type { IEvent } from 'app/store/slices/eventSlice';
+import { getEventId, getEventStartMs } from 'app/utils/event';
 
 interface IEventSearchResultsProps {
   events: IEvent[];
@@ -18,12 +19,12 @@ export function EventSearchResults({ events, onEventSelect }: IEventSearchResult
 
         return (
           <GhostButton
-            key={event.id}
+            key={getEventId(event)}
             className='w-full! justify-between rounded-none! px-4! py-2.5! text-left hover:bg-surface-container-high!'
             onMouseDown={handleMouseDown}>
-            <span className='flex-1 text-body-md text-on-surface truncate'>{event.name}</span>
+            <span className='flex-1 text-body-md text-on-surface truncate'>{event.title}</span>
             <span className='text-label-sm text-on-surface-variant shrink-0'>
-              {new Date(event.start).toLocaleDateString('en-US', {
+              {new Date(getEventStartMs(event)).toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',

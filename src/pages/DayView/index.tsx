@@ -7,6 +7,7 @@ import { EventModal, type IEventModalHandle } from 'app/components/organisms/Eve
 import type { IEvent } from 'app/store/slices/eventSlice';
 import type { ITitleDayPageHandle } from 'app/pages/DayView/types';
 import { useSeekDate } from 'app/hooks/useSeekDate';
+import { getEventFormData } from 'app/utils/event';
 
 export function DayView() {
   const gridRef = useRef<IDayTimeGridHandle>(null);
@@ -27,19 +28,7 @@ export function DayView() {
   }, [fetchForYear]);
 
   const handleEventClick = useCallback((event: IEvent) => {
-    modalRef.current?.open({
-      id: event.id,
-      name: event.name,
-      startDate: new Date(Math.floor(event.start / 86400000) * 86400000),
-      startTime: event.start % 86400000,
-      endDate: new Date(Math.floor(event.end / 86400000) * 86400000),
-      endTime: event.end % 86400000,
-      alert: event.alert,
-      label: event.label,
-      labelName: event.labelName,
-      labelColor: event.labelColor,
-      notes: event.notes,
-    });
+    modalRef.current?.open(getEventFormData(event));
   }, []);
 
   return (

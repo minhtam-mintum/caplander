@@ -8,6 +8,7 @@ import { IconButton } from 'app/components/molecules/Buttons/IconButton';
 import { NotificationDropdown } from 'app/components/organisms/AppHeader/components/NotificationPanel/components/NotificationDropdown';
 import type { EventFormData } from 'app/components/organisms/EventModal';
 import { toFormData } from './utils';
+import { getEventId } from 'app/utils/event';
 
 interface INotificationPanelProps {
   onEventClick: (data: Partial<EventFormData>) => void;
@@ -24,8 +25,8 @@ export const NotificationPanel = memo(function NotificationPanel({
   const bellRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const upcoming = events.filter((e) => notifiedIds.includes(e.id)).slice().reverse();
-  const unreadCount = upcoming.filter((e) => !readIds.includes(e.id)).length;
+  const upcoming = events.filter((e) => notifiedIds.includes(getEventId(e))).slice().reverse();
+  const unreadCount = upcoming.filter((e) => !readIds.includes(getEventId(e))).length;
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -44,13 +45,13 @@ export const NotificationPanel = memo(function NotificationPanel({
   }, []);
 
   const handleItemClick = (event: IEvent) => {
-    dispatch(markAsRead(event.id));
+    dispatch(markAsRead(getEventId(event)));
     setOpen(false);
     onEventClick(toFormData(event));
   };
 
   const handleMarkAllRead = () => {
-    dispatch(markAllAsRead(upcoming.map((e) => e.id)));
+    dispatch(markAllAsRead(upcoming.map(getEventId)));
   };
 
   const anchorRect = bellRef.current?.getBoundingClientRect();

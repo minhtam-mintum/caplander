@@ -7,6 +7,7 @@ import { HeatmapDay } from 'app/components/molecules/HeatmapDay';
 import { useAppSelector } from 'app/store';
 import { toDateStr } from 'app/utils/calendar';
 import type { IFullMonthInYearHandle, IFullMonthInYearProps } from 'app/pages/YearView/types';
+import { getEventEndMs, getEventStartMs } from 'app/utils/event';
 
 export const FullMonthInYear = forwardRef<IFullMonthInYearHandle, IFullMonthInYearProps>(
   function FullMonthInYear({ defaultYear = new Date().getFullYear(), onDaySelect }, ref) {
@@ -34,8 +35,8 @@ export const FullMonthInYear = forwardRef<IFullMonthInYearHandle, IFullMonthInYe
     const countByDate = useMemo(() => {
       const map: Record<string, number> = {};
       for (const event of events) {
-        const startDay = Math.floor(event.start / 86400000) * 86400000;
-        const endDay = Math.floor(event.end / 86400000) * 86400000;
+        const startDay = Math.floor(getEventStartMs(event) / 86400000) * 86400000;
+        const endDay = Math.floor(getEventEndMs(event) / 86400000) * 86400000;
         for (let day = startDay; day <= endDay; day += 86400000) {
           const d = new Date(day);
           const key = toDateStr(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
