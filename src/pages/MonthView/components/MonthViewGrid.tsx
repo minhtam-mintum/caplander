@@ -9,7 +9,6 @@ import { cn } from 'app/utils/cn';
 import { toDateStr } from 'app/utils/calendar';
 import { updateEventThunk } from 'app/store/slices/eventSlice';
 import { useAppDispatch, useAppSelector } from 'app/store';
-import { useLabels } from 'app/hooks/useLabels';
 import type {
   BarItem,
   DragInfo,
@@ -17,7 +16,13 @@ import type {
   IMonthViewGridProps,
 } from 'app/pages/MonthView/types';
 import { DAY_MS, MAX_LANES, dropShadow, layoutWeek } from '../utils';
-import { getEventEndMs, getEventId, getEventLabelId, getEventStartMs, withEventTime } from 'app/utils/event';
+import {
+  getEventEndMs,
+  getEventId,
+  getEventLabelColor,
+  getEventStartMs,
+  withEventTime,
+} from 'app/utils/event';
 
 export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProps>(
   function MonthViewGrid({ defaultYear, defaultMonth, onDayClick, onEventClick }, ref) {
@@ -25,7 +30,6 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
 
     const calRef = useRef<IMonthCalendarHandle>(null);
     const dispatch = useAppDispatch();
-    const { labels } = useLabels();
     const [dragInfo, setDragInfo] = useState<DragInfo | null>(null);
     const [dragOverDs, setDragOverDs] = useState<string | null>(null);
 
@@ -37,11 +41,6 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
         },
       }),
       [],
-    );
-
-    const labelColorMap = useMemo(
-      () => Object.fromEntries(labels.map((l) => [l._id, l.color])),
-      [labels],
     );
 
     const dropRange = useMemo<[number, number] | null>(() => {
@@ -184,7 +183,7 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
           style={{ top: 36, gridAutoRows: '22px', rowGap: '2px', padding: 0 }}>
           {layout.visibleBars.map((bar, bi) => {
             const eventId = getEventId(bar.ev);
-            const color = labelColorMap[getEventLabelId(bar.ev)] ?? '#6366f1';
+            const color = getEventLabelColor(bar.ev) ?? '#6366f1';
             const isDragging = dragInfo?.id === eventId;
             return (
               <div
