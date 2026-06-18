@@ -13,6 +13,7 @@ import {
 import { AuthButton } from './components/AuthButton';
 import { CalendarNavTabs, type ICalendarNavTabsHandle } from './components/CalendarNavTabs';
 import { DarkModeToggle } from './components/DarkModeToggle';
+import { EventFetchProgress } from './components/EventFetchProgress';
 import { EventSearch } from './components/EventSearch';
 import { NotificationPanel } from './components/NotificationPanel';
 import { getEventFormData, getEventStartMs } from 'app/utils/event';
@@ -63,6 +64,7 @@ export function AppHeader() {
             <CalendarNavTabs ref={navTabsRef} />
           </div>
         </div>
+        <EventFetchProgress />
       </header>
     </>
   );
