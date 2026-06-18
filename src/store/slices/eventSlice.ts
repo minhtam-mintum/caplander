@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit';
 import type { IApiEvent } from 'app/services/api';
 import { apiCreateEvent, apiUpdateEvent, apiGetEvents } from 'app/services/api';
 
@@ -76,6 +76,11 @@ const initialState: IEventState = {
   fetchedYears: [],
 };
 
+const clearOldSession = (state: IEventState) => {
+  state.items = [];
+  state.fetchedYears = [];
+};
+
 const eventSlice = createSlice({
   name: 'events',
   initialState,
@@ -96,18 +101,6 @@ const eventSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(setAuth, (state) => {
-        state.items = [];
-        state.fetchedYears = [];
-      })
-      .addCase(logout, (state) => {
-        state.items = [];
-        state.fetchedYears = [];
-      })
-      .addCase(setAnonymous, (state) => {
-        state.items = [];
-        state.fetchedYears = [];
-      })
       .addCase(fetchEventsThunk.pending, (state) => {
         state.loading = true;
       })
@@ -129,7 +122,8 @@ const eventSlice = createSlice({
       .addCase(updateEventThunk.fulfilled, (state, action) => {
         const index = state.items.findIndex((e) => e._id === action.payload._id);
         if (index !== -1) state.items[index] = action.payload;
-      });
+      })
+      .addMatcher(isAnyOf(setAuth, logout, setAnonymous), clearOldSession);
   },
 });
 

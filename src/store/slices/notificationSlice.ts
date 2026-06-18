@@ -1,5 +1,5 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { setAuth, logout } from './authSlice';
+import { createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit';
+import { setAuth, logout, setAnonymous } from './authSlice';
 
 const NOTIFICATION_READ_KEY = 'app_notification_read';
 
@@ -17,6 +17,11 @@ interface INotificationState {
   readIds: string[];
   notifiedIds: string[];
 }
+
+const clearOldSession = (state: INotificationState) => {
+  state.readIds = [];
+  state.notifiedIds = [];
+};
 
 const notificationSlice = createSlice({
   name: 'notifications',
@@ -40,8 +45,7 @@ const notificationSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(setAuth, (state) => { state.readIds = []; state.notifiedIds = []; })
-      .addCase(logout, (state) => { state.readIds = []; state.notifiedIds = []; });
+      .addMatcher(isAnyOf(setAuth, logout, setAnonymous), clearOldSession);
   },
 });
 

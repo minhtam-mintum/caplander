@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit';
 import {
   apiGetLabels,
   apiCreateLabel,
@@ -127,6 +127,12 @@ const initialState: ILabelState = {
   fetched: false,
 };
 
+const clearOldSession = (state: ILabelState) => {
+  state.items = [];
+  state.fetched = false;
+  state.loading = false;
+};
+
 const labelSlice = createSlice({
   name: 'labels',
   initialState,
@@ -137,21 +143,6 @@ const labelSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(setAuth, (state) => {
-        state.items = [];
-        state.fetched = false;
-        state.loading = false;
-      })
-      .addCase(logout, (state) => {
-        state.items = [];
-        state.fetched = false;
-        state.loading = false;
-      })
-      .addCase(setAnonymous, (state) => {
-        state.items = [];
-        state.fetched = false;
-        state.loading = false;
-      })
       .addCase(fetchLabelsThunk.pending, (state) => {
         state.loading = true;
       })
@@ -172,7 +163,8 @@ const labelSlice = createSlice({
       })
       .addCase(deleteLabelThunk.fulfilled, (state, action) => {
         state.items = state.items.filter((l) => l._id !== action.payload);
-      });
+      })
+      .addMatcher(isAnyOf(setAuth, logout, setAnonymous), clearOldSession);
   },
 });
 
