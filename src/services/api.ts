@@ -13,8 +13,12 @@ export interface IUser {
 
 export interface IApiLabel {
   _id: string;
+  userId: string;
   name: string;
   color: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
 export interface IApiEventPayload {

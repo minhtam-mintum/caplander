@@ -53,7 +53,7 @@ export const DayTimeGrid = forwardRef<IDayTimeGridHandle, IDayTimeGridProps>(fun
   const isToday = dateStr === dayToDateStr(new Date());
 
   const labelColorMap = useMemo(
-    () => Object.fromEntries(labels.map((l) => [l.value, l.color])),
+    () => Object.fromEntries(labels.map((l) => [l._id, l.color])),
     [labels],
   );
 

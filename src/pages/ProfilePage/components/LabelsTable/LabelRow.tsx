@@ -40,7 +40,7 @@ function LabelRow({ label, onSave, onDelete }: ILabelRowProps) {
     if (!trimmed) return;
     setIsSaving(true);
     try {
-      await onSave(label.value, trimmed, color);
+      await onSave(label._id, trimmed, color);
       setIsEditing(false);
     } finally {
       setIsSaving(false);
@@ -50,7 +50,7 @@ function LabelRow({ label, onSave, onDelete }: ILabelRowProps) {
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
-      await onDelete(label.value);
+      await onDelete(label._id);
     } finally {
       setIsDeleting(false);
     }

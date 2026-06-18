@@ -3,10 +3,10 @@ import { Check, Loader2, Plus, Tag, X } from 'lucide-react';
 import { ButtonField } from 'app/components/molecules/Buttons/ButtonField';
 import { ColorPicker, DEFAULT_COLOR } from 'app/components/molecules/ColorPicker';
 import { useSelectContext } from 'app/components/molecules/Selects/SelectRHF';
-import type { ILabel } from 'app/hooks/useLabels';
+import type { ILabel, ILabelInput } from 'app/hooks/useLabels';
 
 interface ICreateNewLabelProps {
-  onAdd: (label: ILabel) => Promise<ILabel>;
+  onAdd: (label: ILabelInput) => Promise<ILabel>;
 }
 
 export function CreateNewLabel({ onAdd }: ICreateNewLabelProps) {
@@ -26,12 +26,12 @@ export function CreateNewLabel({ onAdd }: ICreateNewLabelProps) {
     if (trimmed) {
       setIsCreating(true);
       try {
-        const label: ILabel = { name: trimmed, value: trimmed, color };
+        const label: ILabelInput = { name: trimmed, color };
         const created = await onAdd(label);
         setItem([
           ...items,
           {
-            value: created.value,
+            value: created._id,
             option: (
               <span className='flex items-center gap-2'>
                 <Tag size={12} style={{ color }} />

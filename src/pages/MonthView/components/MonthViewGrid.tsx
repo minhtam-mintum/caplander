@@ -40,7 +40,7 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
     );
 
     const labelColorMap = useMemo(
-      () => Object.fromEntries(labels.map((l) => [l.value, l.color])),
+      () => Object.fromEntries(labels.map((l) => [l._id, l.color])),
       [labels],
     );
 

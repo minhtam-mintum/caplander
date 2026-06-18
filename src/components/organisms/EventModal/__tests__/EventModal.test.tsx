@@ -69,7 +69,7 @@ describe('EventModal', () => {
       preloadedState: {
         ...storeState,
         labels: {
-          items: [{ value: 'health', name: 'Health', color: '#16a34a' }],
+          items: [{ _id: 'health', name: 'Health', color: '#16a34a' }],
           loading: false,
           fetched: true,
         },

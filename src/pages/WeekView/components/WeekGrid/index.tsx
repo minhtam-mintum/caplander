@@ -55,7 +55,7 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
   }, [weekDays, onWeekChange]);
 
   const labelColorMap = useMemo(
-    () => Object.fromEntries(labels.map((l) => [l.value, l.color])),
+    () => Object.fromEntries(labels.map((l) => [l._id, l.color])),
     [labels],
   );
 

@@ -27,6 +27,19 @@ const authUser = {
   isAnonymous: false,
 };
 
+function makeApiLabel(overrides: Partial<api.IApiLabel>): api.IApiLabel {
+  return {
+    _id: 'id1',
+    userId: 'u1',
+    name: 'Work',
+    color: '#FF5733',
+    createdAt: '2026-06-11T06:23:44.486Z',
+    updatedAt: '2026-06-11T06:23:44.486Z',
+    __v: 0,
+    ...overrides,
+  };
+}
+
 describe('useLabels', () => {
   beforeEach(() => vi.clearAllMocks());
 
@@ -39,15 +52,19 @@ describe('useLabels', () => {
 
   it('fetches labels from API for authenticated user', async () => {
     vi.mocked(api.apiGetLabels).mockResolvedValue([
-      { _id: 'id1', name: 'Work', color: '#FF5733' },
-      { _id: 'id2', name: 'Personal', color: '#33FF57' },
+      makeApiLabel({ _id: 'id1', name: 'Work', color: '#FF5733' }),
+      makeApiLabel({ _id: 'id2', name: 'Personal', color: '#33FF57' }),
     ]);
     const store = makeStore({ auth: authUser } as never);
     const { result } = renderHook(() => useLabels(), { wrapper: makeWrapper(store) });
 
     await waitFor(() => expect(result.current.labels).toHaveLength(2));
-    expect(result.current.labels[0]).toEqual({ value: 'id1', name: 'Work', color: '#FF5733' });
-    expect(result.current.labels[1]).toEqual({ value: 'id2', name: 'Personal', color: '#33FF57' });
+    expect(result.current.labels[0]).toEqual(
+      makeApiLabel({ _id: 'id1', name: 'Work', color: '#FF5733' }),
+    );
+    expect(result.current.labels[1]).toEqual(
+      makeApiLabel({ _id: 'id2', name: 'Personal', color: '#33FF57' }),
+    );
   });
 
   it('returns empty labels when API fails', async () => {
@@ -65,58 +82,63 @@ describe('useLabels', () => {
     const store = makeStore();
     const { result } = renderHook(() => useLabels(), { wrapper: makeWrapper(store) });
 
-    const newLabel = { name: 'Test', value: 'test', color: '#abc' };
-    const createdLabel = { ...newLabel, value: generatedId };
-    let returned: typeof createdLabel | undefined;
+    const newLabel = { name: 'Test', color: '#abc' };
+    let returned: Awaited<ReturnType<typeof result.current.addLabel>> | undefined;
     await act(async () => {
       returned = await result.current.addLabel(newLabel);
     });
 
     expect(crypto.randomUUID).toHaveBeenCalled();
-    expect(result.current.labels).toContainEqual(createdLabel);
-    expect(returned).toEqual(createdLabel);
+    expect(result.current.labels).toContainEqual(
+      expect.objectContaining({ ...newLabel, _id: generatedId }),
+    );
+    expect(returned).toEqual(expect.objectContaining({ ...newLabel, _id: generatedId }));
     expect(api.apiCreateLabel).not.toHaveBeenCalled();
   });
 
   it('addLabel for authenticated user calls API and uses returned id', async () => {
     vi.mocked(api.apiGetLabels).mockResolvedValue([]);
-    vi.mocked(api.apiCreateLabel).mockResolvedValue({
+    vi.mocked(api.apiCreateLabel).mockResolvedValue(makeApiLabel({
       _id: 'server-id',
       name: 'Test',
       color: '#abc',
-    });
+    }));
     const store = makeStore({ auth: authUser } as never);
     const { result } = renderHook(() => useLabels(), { wrapper: makeWrapper(store) });
     await waitFor(() => expect(api.apiGetLabels).toHaveBeenCalled());
 
-    let returned: { value: string; name: string; color: string } | undefined;
+    let returned: Awaited<ReturnType<typeof result.current.addLabel>> | undefined;
     await act(async () => {
-      returned = await result.current.addLabel({ name: 'Test', value: 'temp', color: '#abc' });
+      returned = await result.current.addLabel({ name: 'Test', color: '#abc' });
     });
 
     expect(api.apiCreateLabel).toHaveBeenCalledWith({ name: 'Test', color: '#abc' });
-    expect(result.current.labels).toContainEqual({ value: 'server-id', name: 'Test', color: '#abc' });
-    expect(returned).toEqual({ value: 'server-id', name: 'Test', color: '#abc' });
+    expect(result.current.labels).toContainEqual(
+      makeApiLabel({ _id: 'server-id', name: 'Test', color: '#abc' }),
+    );
+    expect(returned).toEqual(makeApiLabel({ _id: 'server-id', name: 'Test', color: '#abc' }));
   });
 
   it('addLabel preserves existing labels', async () => {
     vi.mocked(api.apiGetLabels).mockResolvedValue([
-      { _id: 'id1', name: 'Work', color: '#FF5733' },
+      makeApiLabel({ _id: 'id1', name: 'Work', color: '#FF5733' }),
     ]);
-    vi.mocked(api.apiCreateLabel).mockResolvedValue({
+    vi.mocked(api.apiCreateLabel).mockResolvedValue(makeApiLabel({
       _id: 'id2',
       name: 'New',
       color: '#fff',
-    });
+    }));
     const store = makeStore({ auth: authUser } as never);
     const { result } = renderHook(() => useLabels(), { wrapper: makeWrapper(store) });
     await waitFor(() => expect(result.current.labels).toHaveLength(1));
 
     await act(async () => {
-      await result.current.addLabel({ name: 'New', value: 'new', color: '#fff' });
+      await result.current.addLabel({ name: 'New', color: '#fff' });
     });
 
-    expect(result.current.labels[0]).toEqual({ value: 'id1', name: 'Work', color: '#FF5733' });
+    expect(result.current.labels[0]).toEqual(
+      makeApiLabel({ _id: 'id1', name: 'Work', color: '#FF5733' }),
+    );
     expect(result.current.labels).toHaveLength(2);
   });
 });
