@@ -35,7 +35,7 @@ export function WeekView() {
   }, []);
 
   return (
-    <main className='max-w-360 mx-auto px-margin py-lg flex flex-col gap-4'>
+    <main className='h-full min-h-0 max-w-360 mx-auto px-margin py-lg flex flex-col gap-4 overflow-hidden'>
       <EventModal ref={modalRef} />
       <Toolbar
         title={<TitleWeekPage defaultTitle={defaultTitle} ref={titleRef} />}
@@ -43,7 +43,9 @@ export function WeekView() {
         onNext={onNext}
         onToday={onToday}
       />
-      <WeekGrid ref={gridRef} onWeekChange={handleWeekChange} onEventClick={handleEventClick} />
+      <div className='min-h-0 flex-1'>
+        <WeekGrid ref={gridRef} onWeekChange={handleWeekChange} onEventClick={handleEventClick} />
+      </div>
     </main>
   );
 }

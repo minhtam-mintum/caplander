@@ -1,13 +1,14 @@
-import { forwardRef, useImperativeHandle, useLayoutEffect, useMemo, useState } from 'react';
+import { forwardRef, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   ALL_DAY_GAP,
   ALL_DAY_PAD,
   ALL_DAY_ROW_H,
+  START_HOUR,
   HOUR_HEIGHT,
   HOURS,
   WEEK_START,
 } from 'app/pages/WeekView/const';
-import { dayToDateStr, formatHour, getWeekDays, isMultiDay } from 'app/pages/WeekView/utils';
+import { dayToDateStr, formatHour, getWeekDays, isMultiDay, msToUtcHM } from 'app/pages/WeekView/utils';
 import { useAppSelector } from 'app/store';
 import { useLabels } from 'app/hooks/useLabels';
 import { layoutWeek } from 'app/pages/MonthView/utils';
@@ -25,7 +26,26 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
   const events = useAppSelector((state) => state.events.items);
   const { labels } = useLabels();
   const [sharedDragInfo, setSharedDragInfo] = useState<DragInfo | null>(null);
+  const gridRootRef = useRef<HTMLDivElement>(null);
+  const hourLabelsRef = useRef<HTMLDivElement>(null);
+  const timeGridScrollRef = useRef<HTMLDivElement>(null);
   const handleDragEnd = () => setSharedDragInfo(null);
+  const handleTimeScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    if (hourLabelsRef.current) hourLabelsRef.current.scrollTop = event.currentTarget.scrollTop;
+  };
+
+  useLayoutEffect(() => {
+    const scrollProbe = document.createElement('div');
+    scrollProbe.style.height = '100px';
+    scrollProbe.style.overflow = 'scroll';
+    scrollProbe.style.position = 'absolute';
+    scrollProbe.style.top = '-9999px';
+    scrollProbe.style.width = '100px';
+    document.body.append(scrollProbe);
+    const scrollbarWidth = scrollProbe.offsetWidth - scrollProbe.clientWidth;
+    scrollProbe.remove();
+    gridRootRef.current?.style.setProperty('--week-scrollbar-gutter', `${scrollbarWidth}px`);
+  }, []);
 
   useImperativeHandle(
     ref,
@@ -73,6 +93,32 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
     return { allDayEvents: allDay, timedEventsByDate: timed };
   }, [events]);
 
+  const firstTimedEventOffset = useMemo(() => {
+    const weekDateSet = new Set(weekDays.map(dayToDateStr));
+    let firstStartMs = Infinity;
+
+    for (const dateStr of weekDateSet) {
+      const dayEvents = timedEventsByDate[dateStr] ?? [];
+      for (const event of dayEvents) {
+        firstStartMs = Math.min(firstStartMs, getEventStartMs(event));
+      }
+    }
+
+    if (!Number.isFinite(firstStartMs)) return null;
+
+    const [hour, minute] = msToUtcHM(firstStartMs);
+    return Math.max(0, (hour * 60 + minute - START_HOUR * 60) * (HOUR_HEIGHT / 60));
+  }, [weekDays, timedEventsByDate]);
+
+  useLayoutEffect(() => {
+    if (firstTimedEventOffset === null) return;
+    const scrollEl = timeGridScrollRef.current;
+    if (!scrollEl) return;
+
+    scrollEl.scrollTop = firstTimedEventOffset;
+    if (hourLabelsRef.current) hourLabelsRef.current.scrollTop = firstTimedEventOffset;
+  }, [firstTimedEventOffset]);
+
   const allDayLayout = useMemo(() => layoutWeek(weekDays, allDayEvents), [weekDays, allDayEvents]);
   const usedLanes = allDayLayout.visibleBars.reduce((max, b) => Math.max(max, b.lane + 1), 0);
   const hasOverflow = allDayLayout.overflowByCol.some((n) => n > 0);
@@ -81,25 +127,30 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
     ALL_DAY_PAD * 2 + laneRows * ALL_DAY_ROW_H + Math.max(0, laneRows - 1) * ALL_DAY_GAP;
 
   return (
-    <div className='flex rounded-lg border border-outline-variant overflow-hidden bg-surface-container-lowest'>
-      <div className='w-20 shrink-0 border-r border-outline-variant flex flex-col'>
+    <div
+      ref={gridRootRef}
+      className='flex h-full min-h-0 rounded-lg border border-outline-variant overflow-hidden bg-surface-container-lowest'
+      style={{ '--week-scrollbar-gutter': '0px' } as React.CSSProperties}>
+      <div className='w-20 shrink-0 border-r border-outline-variant flex flex-col min-h-0'>
         <div className='h-14 border-b border-outline-variant shrink-0' />
         <div
           className='border-b border-outline-variant flex items-center justify-end pr-2 pt-1 shrink-0'
           style={{ height: allDayHeight }}>
           <span className='text-label-xs text-on-surface-variant whitespace-nowrap'>all-day</span>
         </div>
-        {HOURS.map((h) => (
-          <div
-            key={h}
-            className='flex items-start justify-end pr-2 pt-1 shrink-0'
-            style={{ height: HOUR_HEIGHT }}>
-            <span className='text-label-sm text-on-surface-variant'>{formatHour(h)}</span>
-          </div>
-        ))}
+        <div ref={hourLabelsRef} className='min-h-0 flex-1 overflow-hidden'>
+          {HOURS.map((h) => (
+            <div
+              key={h}
+              className='flex items-start justify-end pr-2 pt-1 shrink-0'
+              style={{ height: HOUR_HEIGHT }}>
+              <span className='text-label-sm text-on-surface-variant'>{formatHour(h)}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className='flex-1 overflow-x-auto flex flex-col'>
+      <div className='min-w-0 flex-1 overflow-x-auto flex flex-col min-h-0'>
         <WeekDayHeaders weekDays={weekDays} />
         <AllDayRow
           weekDays={weekDays}
@@ -111,15 +162,20 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
           onDragStart={setSharedDragInfo}
           onDragEnd={handleDragEnd}
         />
-        <TimeGrid
-          weekDays={weekDays}
-          timedEventsByDate={timedEventsByDate}
-          labelColorMap={labelColorMap}
-          onEventClick={onEventClick}
-          dragInfo={sharedDragInfo}
-          onDragStart={setSharedDragInfo}
-          onDragEnd={handleDragEnd}
-        />
+        <div
+          ref={timeGridScrollRef}
+          className='min-h-0 flex-1 overflow-y-auto overscroll-contain'
+          onScroll={handleTimeScroll}>
+          <TimeGrid
+            weekDays={weekDays}
+            timedEventsByDate={timedEventsByDate}
+            labelColorMap={labelColorMap}
+            onEventClick={onEventClick}
+            dragInfo={sharedDragInfo}
+            onDragStart={setSharedDragInfo}
+            onDragEnd={handleDragEnd}
+          />
+        </div>
       </div>
     </div>
   );

@@ -39,7 +39,7 @@ export function AppHeader() {
   return (
     <>
       <EventModal ref={eventModalRef} />
-      <header className='sticky top-0 z-10 bg-surface-container-lowest border-b border-outline-variant'>
+      <header className='sticky top-0 z-10 shrink-0 bg-surface-container-lowest border-b border-outline-variant'>
         <div className='max-w-360 mx-auto px-margin'>
           <div className='flex items-center gap-4 h-14'>
             <Logo />

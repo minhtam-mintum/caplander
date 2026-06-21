@@ -8,7 +8,13 @@ import { updateEventThunk } from 'app/store/slices/eventSlice';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import type { BarItem } from 'app/pages/MonthView/types';
 import type { DragInfo } from 'app/pages/WeekView/types';
-import { getEventEndMs, getEventId, getEventLabelId, getEventStartMs, withEventTime } from 'app/utils/event';
+import {
+  getEventEndMs,
+  getEventId,
+  getEventLabelId,
+  getEventStartMs,
+  withEventTime,
+} from 'app/utils/event';
 
 interface IAllDayRowProps {
   weekDays: Date[];
@@ -101,7 +107,11 @@ export const AllDayRow = ({
         );
         dispatch(
           updateEventThunk(
-            withEventTime(event, newStartUtcMs, newStartUtcMs + (getEventEndMs(event) - getEventStartMs(event))),
+            withEventTime(
+              event,
+              newStartUtcMs,
+              newStartUtcMs + (getEventEndMs(event) - getEventStartMs(event)),
+            ),
           ),
         );
       } else {
@@ -140,9 +150,11 @@ export const AllDayRow = ({
           />
         );
       })}
+      <div aria-hidden='true' className='w-(--week-scrollbar-gutter) shrink-0' />
       <div
         className='absolute inset-0 pointer-events-none'
         style={{
+          right: 'var(--week-scrollbar-gutter)',
           display: 'grid',
           gridTemplateColumns: 'repeat(7, minmax(96px, 1fr))',
           gridAutoRows: `${ALL_DAY_ROW_H}px`,

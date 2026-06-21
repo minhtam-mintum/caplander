@@ -33,9 +33,11 @@ function App() {
   }
 
   return (
-    <div className='min-h-screen min-w-3xl bg-background'>
+    <div className='h-dvh min-w-3xl bg-background flex flex-col overflow-hidden'>
       <AppHeader />
-      <Outlet />
+      <div className='min-h-0 flex-1 overflow-y-auto'>
+        <Outlet />
+      </div>
     </div>
   );
 }
