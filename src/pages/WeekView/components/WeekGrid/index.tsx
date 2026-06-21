@@ -8,7 +8,13 @@ import {
   HOURS,
   WEEK_START,
 } from 'app/pages/WeekView/const';
-import { dayToDateStr, formatHour, getWeekDays, isMultiDay, msToUtcHM } from 'app/pages/WeekView/utils';
+import {
+  dayToDateStr,
+  formatHour,
+  getWeekDays,
+  isMultiDay,
+  msToUtcHM,
+} from 'app/pages/WeekView/utils';
 import { useAppSelector } from 'app/store';
 import { useLabels } from 'app/hooks/useLabels';
 import { layoutWeek } from 'app/pages/MonthView/utils';
@@ -29,6 +35,7 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
   const gridRootRef = useRef<HTMLDivElement>(null);
   const hourLabelsRef = useRef<HTMLDivElement>(null);
   const timeGridScrollRef = useRef<HTMLDivElement>(null);
+  const autoScrolledWeekKeyRef = useRef<string | null>(null);
   const handleDragEnd = () => setSharedDragInfo(null);
   const handleTimeScroll = (event: React.UIEvent<HTMLDivElement>) => {
     if (hourLabelsRef.current) hourLabelsRef.current.scrollTop = event.currentTarget.scrollTop;
@@ -69,6 +76,10 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
   );
 
   const weekDays = useMemo(() => getWeekDays(refDate, WEEK_START), [refDate]);
+  const weekKey = useMemo(
+    () => `${dayToDateStr(weekDays[0])}:${dayToDateStr(weekDays[6])}`,
+    [weekDays],
+  );
 
   useLayoutEffect(() => {
     onWeekChange?.(weekDays);
@@ -112,12 +123,15 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
 
   useLayoutEffect(() => {
     if (firstTimedEventOffset === null) return;
+    if (autoScrolledWeekKeyRef.current === weekKey) return;
+
     const scrollEl = timeGridScrollRef.current;
     if (!scrollEl) return;
 
     scrollEl.scrollTop = firstTimedEventOffset;
     if (hourLabelsRef.current) hourLabelsRef.current.scrollTop = firstTimedEventOffset;
-  }, [firstTimedEventOffset]);
+    autoScrolledWeekKeyRef.current = weekKey;
+  }, [firstTimedEventOffset, weekKey]);
 
   const allDayLayout = useMemo(() => layoutWeek(weekDays, allDayEvents), [weekDays, allDayEvents]);
   const usedLanes = allDayLayout.visibleBars.reduce((max, b) => Math.max(max, b.lane + 1), 0);
