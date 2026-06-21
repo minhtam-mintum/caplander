@@ -6,12 +6,9 @@ import { Toolbar } from 'app/components/molecules/Toolbar';
 import { TitleMonthPage } from './components/Title';
 import { MonthViewGrid } from './components/MonthViewGrid';
 import type { ITitleMonthPageHandle, IMonthViewGridHandle } from './types';
-import { MONTH_NAMES } from 'app/utils/calendar';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import { useSeekDate } from 'app/hooks/useSeekDate';
 import { getEventFormData } from 'app/utils/event';
-
-const formatTitle = (date: Date) => `${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
 
 export function MonthView() {
   const defaultDate = useRef(new Date()).current;
@@ -37,14 +34,14 @@ export function MonthView() {
   useSeekDate((d) => {
     dateCursor.current = d;
     gridRef.current?.updateMonth(d.getFullYear(), d.getMonth());
-    titleRef.current?.setTitle(formatTitle(d));
+    titleRef.current?.setDate(d);
   });
 
   const fetchForYear = useFetchForYear();
   const handleSync = (newDate: Date) => {
     dateCursor.current = newDate;
     gridRef.current?.updateMonth(newDate.getFullYear(), newDate.getMonth());
-    titleRef.current?.setTitle(formatTitle(newDate));
+    titleRef.current?.setDate(newDate);
     fetchForYear(newDate.getFullYear());
   };
   const handlePrev = () => {
@@ -65,7 +62,7 @@ export function MonthView() {
       <DayDrawer ref={drawerRef} onAddEvent={handleAddEvent} onEventClick={handleEventClick} />
       <Toolbar
         align='end'
-        title={<TitleMonthPage defaultTitle={formatTitle(defaultDate)} ref={titleRef} />}
+        title={<TitleMonthPage defaultDate={defaultDate} ref={titleRef} onMonthChange={handleSync} />}
         onPrev={handlePrev}
         onNext={handleNext}
         onToday={handleToday}

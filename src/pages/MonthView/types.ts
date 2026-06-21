@@ -30,9 +30,12 @@ export interface BarItem {
 }
 
 export interface ITitleMonthPageHandle {
-  setTitle: (title: string) => void;
+  setDate: (date: Date) => void;
 }
 
 export interface ITitleMonthPageProps {
-  defaultTitle: string;
+  defaultDate: Date;
+  onMonthChange: (date: Date) => void;
 }
+
+export type PickerStep = 'year' | 'month';
