@@ -23,8 +23,7 @@ export function WeekCalendar({
       <div className={cn('grid grid-cols-7 gap-0.5', classGrid)}>
         {cells.map((cell, di) => {
           const cellIsDisabled =
-            !cell.isCurrentMonth ||
-            (!!minDate && new Date(Date.UTC(cell.year, cell.month, cell.day)) < minDate);
+            !!minDate && new Date(Date.UTC(cell.year, cell.month, cell.day)) < minDate;
           const dayProps: IRenderDayProps = {
             day: cell.day,
             year: cell.year,
