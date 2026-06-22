@@ -1,11 +1,11 @@
 import { useCallback, useRef } from 'react';
 import { useFetchForYear } from 'app/hooks/useFetchForYear';
 import { WeekGrid } from './components/WeekGrid';
-import { TitleWeekPage } from './components/Title';
+import { TitleWeekPage, type ITitleWeekPageHandle } from './components/TitleWeekPage';
 import { Toolbar } from 'app/components/molecules/Toolbar';
 import { EventModal, type IEventModalHandle } from 'app/components/organisms/EventModal';
 import type { IEvent } from 'app/store/slices/eventSlice';
-import type { ITitleWeekPageHandle, IWeekGridHandle } from './types';
+import type { IWeekGridHandle } from './types';
 import { useSeekDate } from 'app/hooks/useSeekDate';
 import { getEventFormData } from 'app/utils/event';
 

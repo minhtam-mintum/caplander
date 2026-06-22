@@ -1,16 +1,5 @@
 import type { IEvent } from 'app/store/slices/eventSlice';
 
-export interface ITitleWeekPageHandle {
-  setDate: (date: Date) => void;
-}
-
-export interface ITitleWeekPageProps {
-  defaultDate: Date;
-  onWeekChange: (date: Date) => void;
-}
-
-export type WeekPickerStep = 'day' | 'month' | 'year';
-
 export type DragInfo =
   | { type: 'allDay'; id: string; grabOffset: number; span: number }
   | { type: 'timed'; id: string; grabOffsetMin: number; durationMs: number };
