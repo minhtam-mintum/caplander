@@ -75,7 +75,7 @@ export const DayAllDayRow = ({
         'shrink-0 border-b border-outline-variant transition-colors',
         dropActive && 'bg-primary/10',
       )}
-      style={{ height: allDayHeight }}
+      style={{ height: allDayHeight, paddingRight: 'var(--day-scrollbar-gutter)' }}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}>

@@ -16,7 +16,6 @@ import {
   msToUtcHM,
 } from 'app/pages/WeekView/utils';
 import { useAppSelector } from 'app/store';
-import { useLabels } from 'app/hooks/useLabels';
 import { layoutWeek } from 'app/pages/MonthView/utils';
 import { WeekDayHeaders } from './WeekDayHeaders';
 import { AllDayRow } from './AllDayRow';
@@ -30,7 +29,7 @@ export const WeekGrid = forwardRef<IWeekGridHandle, IWeekGridProps>(function Wee
 ) {
   const [refDate, setRefDate] = useState(new Date());
   const events = useAppSelector((state) => state.events.items);
-  const { labels } = useLabels();
+  const labels = useAppSelector((s) => s.labels.items);
   const [sharedDragInfo, setSharedDragInfo] = useState<DragInfo | null>(null);
   const gridRootRef = useRef<HTMLDivElement>(null);
   const hourLabelsRef = useRef<HTMLDivElement>(null);
