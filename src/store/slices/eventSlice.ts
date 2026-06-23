@@ -10,6 +10,7 @@ interface IEventState {
   items: IEvent[];
   loading: boolean;
   fetchedYears: number[];
+  fetchingYears: number[];
 }
 
 // ─── Thunks ───────────────────────────────────────────────────────────────────
@@ -37,7 +38,7 @@ export const fetchEventsThunk = createAsyncThunk<
       const { auth, events } = getState();
       if (!auth.user || auth.isAnonymous) return false;
       const year = parseInt(params.from.slice(0, 4), 10);
-      return !events.fetchedYears.includes(year);
+      return !events.fetchedYears.includes(year) && !events.fetchingYears.includes(year);
     },
   },
 );
@@ -74,11 +75,21 @@ const initialState: IEventState = {
   items: [],
   loading: false,
   fetchedYears: [],
+  fetchingYears: [],
 };
 
 const clearOldSession = (state: IEventState) => {
   state.items = [];
   state.fetchedYears = [];
+  state.fetchingYears = [];
+  state.loading = false;
+};
+
+const getFetchYear = (params: { from: string }) => parseInt(params.from.slice(0, 4), 10);
+
+const completeFetchYear = (state: IEventState, year: number) => {
+  state.fetchingYears = state.fetchingYears.filter((fetchingYear) => fetchingYear !== year);
+  state.loading = state.fetchingYears.length > 0;
 };
 
 const eventSlice = createSlice({
@@ -101,7 +112,9 @@ const eventSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchEventsThunk.pending, (state) => {
+      .addCase(fetchEventsThunk.pending, (state, action) => {
+        const year = getFetchYear(action.meta.arg);
+        if (!state.fetchingYears.includes(year)) state.fetchingYears.push(year);
         state.loading = true;
       })
       .addCase(fetchEventsThunk.fulfilled, (state, action) => {
@@ -110,11 +123,11 @@ const eventSlice = createSlice({
           ...state.items.filter((e) => new Date(e.startDate).getFullYear() !== year),
           ...events,
         ];
-        state.fetchedYears.push(year);
-        state.loading = false;
+        if (!state.fetchedYears.includes(year)) state.fetchedYears.push(year);
+        completeFetchYear(state, year);
       })
-      .addCase(fetchEventsThunk.rejected, (state) => {
-        state.loading = false;
+      .addCase(fetchEventsThunk.rejected, (state, action) => {
+        completeFetchYear(state, getFetchYear(action.meta.arg));
       })
       .addCase(createEventThunk.fulfilled, (state, action) => {
         state.items.push(action.payload);
