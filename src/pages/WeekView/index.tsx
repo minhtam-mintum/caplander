@@ -1,22 +1,24 @@
 import { useCallback, useRef } from 'react';
 import { useFetchForYear } from 'app/hooks/useFetchForYear';
 import { WeekGrid } from './components/WeekGrid';
-import { TitleWeekPage } from './components/Title';
+import { TitleWeekPage, type ITitleWeekPageHandle } from './components/TitleWeekPage';
 import { Toolbar } from 'app/components/molecules/Toolbar';
 import { EventModal, type IEventModalHandle } from 'app/components/organisms/EventModal';
-import { formatWeekRange, getWeekDays } from 'app/pages/WeekView/utils';
 import type { IEvent } from 'app/store/slices/eventSlice';
-import type { ITitleWeekPageHandle, IWeekGridHandle } from './types';
-import { WEEK_START } from './const';
+import type { IWeekGridHandle } from './types';
 import { useSeekDate } from 'app/hooks/useSeekDate';
+import { getEventFormData } from 'app/utils/event';
 
 export function WeekView() {
+  const defaultDate = useRef(new Date()).current;
   const gridRef = useRef<IWeekGridHandle>(null);
   const modalRef = useRef<IEventModalHandle>(null);
   const titleRef = useRef<ITitleWeekPageHandle>(null);
-  const defaultTitle = useRef(formatWeekRange(getWeekDays(new Date(), WEEK_START))).current;
 
-  useSeekDate((date) => gridRef.current?.goToDate(date));
+  useSeekDate((date) => {
+    gridRef.current?.goToDate(date);
+    titleRef.current?.setDate(date);
+  });
 
   const onPrev = useCallback(() => gridRef.current?.prev(), []);
   const onNext = useCallback(() => gridRef.current?.next(), []);
@@ -24,37 +26,37 @@ export function WeekView() {
 
   const fetchForYear = useFetchForYear();
   const handleWeekChange = useCallback((days: Date[]) => {
-    titleRef.current?.setTitle(formatWeekRange(days));
+    titleRef.current?.setDate(days[0]);
     const years = [...new Set(days.map((d) => d.getFullYear()))];
     years.forEach(fetchForYear);
   }, [fetchForYear]);
 
+  const handleTitleWeekChange = useCallback((date: Date) => {
+    gridRef.current?.goToDate(date);
+  }, []);
+
   const handleEventClick = useCallback((event: IEvent) => {
-    modalRef.current?.open({
-      id: event.id,
-      name: event.name,
-      startDate: new Date(Math.floor(event.start / 86400000) * 86400000),
-      startTime: event.start % 86400000,
-      endDate: new Date(Math.floor(event.end / 86400000) * 86400000),
-      endTime: event.end % 86400000,
-      alert: event.alert,
-      label: event.label,
-      labelName: event.labelName,
-      labelColor: event.labelColor,
-      notes: event.notes,
-    });
+    modalRef.current?.open(getEventFormData(event));
   }, []);
 
   return (
-    <main className='max-w-360 mx-auto px-margin py-lg flex flex-col gap-4'>
+    <main className='h-full min-h-0 max-w-360 mx-auto px-margin py-lg flex flex-col gap-4 overflow-hidden'>
       <EventModal ref={modalRef} />
       <Toolbar
-        title={<TitleWeekPage defaultTitle={defaultTitle} ref={titleRef} />}
+        title={
+          <TitleWeekPage
+            defaultDate={defaultDate}
+            ref={titleRef}
+            onWeekChange={handleTitleWeekChange}
+          />
+        }
         onPrev={onPrev}
         onNext={onNext}
         onToday={onToday}
       />
-      <WeekGrid ref={gridRef} onWeekChange={handleWeekChange} onEventClick={handleEventClick} />
+      <div className='min-h-0 flex-1'>
+        <WeekGrid ref={gridRef} onWeekChange={handleWeekChange} onEventClick={handleEventClick} />
+      </div>
     </main>
   );
 }

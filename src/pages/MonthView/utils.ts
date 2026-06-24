@@ -1,5 +1,6 @@
 import type { IEvent } from 'app/store/slices/eventSlice';
 import type { BarItem } from './types';
+import { getEventEndMs, getEventStartMs } from 'app/utils/event';
 
 export const MAX_LANES = 3;
 export const DAY_MS = 86400000;
@@ -15,8 +16,8 @@ export function layoutWeek(
   const bars: BarItem[] = [];
 
   for (const e of events) {
-    const evStartMs = Math.floor(e.start / DAY_MS) * DAY_MS;
-    const evEndMs = Math.floor(e.end / DAY_MS) * DAY_MS;
+    const evStartMs = Math.floor(getEventStartMs(e) / DAY_MS) * DAY_MS;
+    const evEndMs = Math.floor(getEventEndMs(e) / DAY_MS) * DAY_MS;
     if (evEndMs < weekStartMs || evStartMs > weekEndMs) continue;
 
     const segStartMs = evStartMs < weekStartMs ? weekStartMs : evStartMs;

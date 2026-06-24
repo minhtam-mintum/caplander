@@ -9,7 +9,6 @@ import { cn } from 'app/utils/cn';
 import { toDateStr } from 'app/utils/calendar';
 import { updateEventThunk } from 'app/store/slices/eventSlice';
 import { useAppDispatch, useAppSelector } from 'app/store';
-import { useLabels } from 'app/hooks/useLabels';
 import type {
   BarItem,
   DragInfo,
@@ -17,6 +16,13 @@ import type {
   IMonthViewGridProps,
 } from 'app/pages/MonthView/types';
 import { DAY_MS, MAX_LANES, dropShadow, layoutWeek } from '../utils';
+import {
+  getEventEndMs,
+  getEventId,
+  getEventLabelColor,
+  getEventStartMs,
+  withEventTime,
+} from 'app/utils/event';
 
 export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProps>(
   function MonthViewGrid({ defaultYear, defaultMonth, onDayClick, onEventClick }, ref) {
@@ -24,7 +30,6 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
 
     const calRef = useRef<IMonthCalendarHandle>(null);
     const dispatch = useAppDispatch();
-    const { labels } = useLabels();
     const [dragInfo, setDragInfo] = useState<DragInfo | null>(null);
     const [dragOverDs, setDragOverDs] = useState<string | null>(null);
 
@@ -36,11 +41,6 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
         },
       }),
       [],
-    );
-
-    const labelColorMap = useMemo(
-      () => Object.fromEntries(labels.map((l) => [l.value, l.color])),
-      [labels],
     );
 
     const dropRange = useMemo<[number, number] | null>(() => {
@@ -67,10 +67,10 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
       grabbed.setDate(weekStartDate.getDate() + (bar.startCol - 1) + dayInBar);
       const grabbedUtc = Date.UTC(grabbed.getFullYear(), grabbed.getMonth(), grabbed.getDate());
       const grabOffset = Math.round((grabbedUtc - bar.evStartMs) / DAY_MS);
-      setDragInfo({ id: bar.ev.id, grabOffset, span: bar.evSpan });
+      setDragInfo({ id: getEventId(bar.ev), grabOffset, span: bar.evSpan });
       e.dataTransfer.effectAllowed = 'move';
       try {
-        e.dataTransfer.setData('text/plain', bar.ev.id);
+        e.dataTransfer.setData('text/plain', getEventId(bar.ev));
       } catch {
         /* */
       }
@@ -100,10 +100,12 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
       const shifted = new Date(cellDate);
       shifted.setDate(cellDate.getDate() - dragInfo.grabOffset);
       const newStartUtcMs = Date.UTC(shifted.getFullYear(), shifted.getMonth(), shifted.getDate());
-      const event = events.find((ev) => ev.id === dragInfo.id);
+      const event = events.find((ev) => getEventId(ev) === dragInfo.id);
       if (event) {
-        const duration = event.end - event.start;
-        dispatch(updateEventThunk({ ...event, start: newStartUtcMs, end: newStartUtcMs + duration }));
+        const duration = getEventEndMs(event) - getEventStartMs(event);
+        dispatch(
+          updateEventThunk(withEventTime(event, newStartUtcMs, newStartUtcMs + duration)),
+        );
       }
       setDragInfo(null);
       setDragOverDs(null);
@@ -180,11 +182,12 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
           className='absolute left-0 right-0 grid grid-cols-7 pointer-events-none'
           style={{ top: 36, gridAutoRows: '22px', rowGap: '2px', padding: 0 }}>
           {layout.visibleBars.map((bar, bi) => {
-            const color = labelColorMap[bar.ev.label] ?? '#6366f1';
-            const isDragging = dragInfo?.id === bar.ev.id;
+            const eventId = getEventId(bar.ev);
+            const color = getEventLabelColor(bar.ev) ?? '#6366f1';
+            const isDragging = dragInfo?.id === eventId;
             return (
               <div
-                key={`${bar.ev.id}-${bi}`}
+                key={`${eventId}-${bi}`}
                 draggable
                 className={cn(
                   'pointer-events-auto flex items-center px-2 text-[12px] font-medium overflow-hidden whitespace-nowrap transition-all select-none',
@@ -208,17 +211,27 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
                   e.dataTransfer.dropEffect = 'move';
                   const rect = e.currentTarget.getBoundingClientRect();
                   const barW = rect.width / bar.span;
-                  const dayIndex = Math.min(bar.span - 1, Math.max(0, Math.floor((e.clientX - rect.left) / barW)));
+                  const dayIndex = Math.min(
+                    bar.span - 1,
+                    Math.max(0, Math.floor((e.clientX - rect.left) / barW)),
+                  );
                   const colIndex = bar.startCol - 1 + dayIndex;
                   const targetDate = weekDates[Math.min(colIndex, weekDates.length - 1)];
-                  const ds = toDateStr(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+                  const ds = toDateStr(
+                    targetDate.getFullYear(),
+                    targetDate.getMonth(),
+                    targetDate.getDate(),
+                  );
                   if (dragOverDs !== ds) setDragOverDs(ds);
                 }}
                 onDrop={(e) => {
                   if (!dragInfo) return;
                   const rect = e.currentTarget.getBoundingClientRect();
                   const barW = rect.width / bar.span;
-                  const dayIndex = Math.min(bar.span - 1, Math.max(0, Math.floor((e.clientX - rect.left) / barW)));
+                  const dayIndex = Math.min(
+                    bar.span - 1,
+                    Math.max(0, Math.floor((e.clientX - rect.left) / barW)),
+                  );
                   const colIndex = bar.startCol - 1 + dayIndex;
                   const targetDate = weekDates[Math.min(colIndex, weekDates.length - 1)];
                   handleDrop(e, targetDate);
@@ -229,7 +242,7 @@ export const MonthViewGrid = forwardRef<IMonthViewGridHandle, IMonthViewGridProp
                 }}>
                 <span className='overflow-hidden text-ellipsis'>
                   {bar.startsBefore ? '‹ ' : ''}
-                  {bar.ev.name}
+                  {bar.ev.title}
                   {bar.endsAfter ? ' ›' : ''}
                 </span>
               </div>

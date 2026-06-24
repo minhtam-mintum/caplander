@@ -1,21 +1,36 @@
 import { ChevronDown } from 'lucide-react';
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { GhostButton } from 'app/components/molecules/Buttons/GhostButton';
-import { Calendar } from 'app/components/molecules/Calendar';
-import { formatFullDate, getDayTitle } from 'app/utils/day';
-import { dayToDateStr } from 'app/pages/WeekView/utils';
-import type { ITitleDayPageHandle, ITitleDayPageProps } from 'app/pages/DayView/types';
+import { WEEK_START } from 'app/pages/WeekView/const';
+import { formatWeekRange, getWeekDays } from 'app/pages/WeekView/utils';
+import { WeekPickerDropdown } from './WeekPickerDropdown';
+import type { ITitleWeekPageHandle } from './types';
 
-export const TitleDayPage = forwardRef<ITitleDayPageHandle, ITitleDayPageProps>(
-  function TitleDayPage({ defaultDate, onDayChange }, ref) {
-    const [date, setDateState] = useState(defaultDate);
+export type { ITitleWeekPageHandle } from './types';
+
+interface ITitleWeekPageProps {
+  defaultDate: Date;
+  onWeekChange: (date: Date) => void;
+}
+
+export const TitleWeekPage = forwardRef<ITitleWeekPageHandle, ITitleWeekPageProps>(
+  function TitleWeekPage({ defaultDate, onWeekChange }, ref) {
+    const [selectedDate, setSelectedDate] = useState(defaultDate);
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-    const dateKey = dayToDateStr(date);
+    const selectedWeekDays = useMemo(() => getWeekDays(selectedDate, WEEK_START), [selectedDate]);
+    const title = formatWeekRange(selectedWeekDays);
 
-    const setDate = useCallback((nextDate: Date) => {
-      setDateState(nextDate);
-      setIsOpen(false);
+    const setDate = useCallback((date: Date) => {
+      setSelectedDate(date);
     }, []);
 
     useImperativeHandle(ref, () => ({ setDate }), [setDate]);
@@ -46,10 +61,11 @@ export const TitleDayPage = forwardRef<ITitleDayPageHandle, ITitleDayPageProps>(
       setIsOpen((value) => !value);
     };
 
-    const handleDaySelect = useCallback((nextDate: Date) => {
-      setDate(nextDate);
-      onDayChange(nextDate);
-    }, [onDayChange, setDate]);
+    const handleDateSelect = useCallback((date: Date) => {
+      setDate(date);
+      setIsOpen(false);
+      onWeekChange(date);
+    }, [onWeekChange, setDate]);
 
     return (
       <div ref={containerRef} className='relative'>
@@ -58,18 +74,16 @@ export const TitleDayPage = forwardRef<ITitleDayPageHandle, ITitleDayPageProps>(
           aria-haspopup='dialog'
           aria-expanded={isOpen}
           onClick={handleToggleOpen}>
-          <span className='text-headline-lg'>{getDayTitle(date)}</span>
+          <span className='text-headline-lg'>{title}</span>
           <ChevronDown
             size={18}
             className={`text-on-surface-variant transition-transform ${isOpen ? 'rotate-180' : ''}`}
           />
         </GhostButton>
         {isOpen && (
-          <div className='absolute left-0 top-full mt-2 z-20 w-80 rounded-xl border border-outline-variant bg-surface-container-lowest shadow-lg overflow-hidden p-3'>
-            <Calendar key={dateKey} defaultDate={date} onDayClick={handleDaySelect} />
-          </div>
+          <WeekPickerDropdown selectedDate={selectedDate} onDateSelect={handleDateSelect} />
         )}
-        <p className='text-body-md text-on-surface-variant'>{formatFullDate(date)}</p>
+        <p className='text-body-md text-on-surface-variant'>Weekly Overview &amp; Events</p>
       </div>
     );
   },

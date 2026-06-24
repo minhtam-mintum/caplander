@@ -75,13 +75,14 @@ describe('formatRelativeTime', () => {
 
 describe('toFormData', () => {
   const event: IEvent = {
-    id: 'evt-1',
-    name: 'Team Sync',
-    start: Date.UTC(2024, 2, 15) + 9 * 3_600_000,  // Mar 15 at 09:00 UTC
-    end: Date.UTC(2024, 2, 15) + 10 * 3_600_000,   // Mar 15 at 10:00 UTC
+    _id: 'evt-1',
+    title: 'Team Sync',
+    startDate: new Date(Date.UTC(2024, 2, 15) + 9 * 3_600_000).toISOString(),  // Mar 15 at 09:00 UTC
+    endDate: new Date(Date.UTC(2024, 2, 15) + 10 * 3_600_000).toISOString(),   // Mar 15 at 10:00 UTC
+    allDay: false,
     alert: 0,
-    label: 'work',
-    notes: '<p>notes</p>',
+    labelId: 'work',
+    description: '<p>notes</p>',
   };
 
   it('maps id and name', () => {

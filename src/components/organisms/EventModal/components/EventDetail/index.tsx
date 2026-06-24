@@ -16,7 +16,7 @@ export function EventDetail({ data, renderFooter, onEdit, onDelete }: IEventDeta
   const { startDate, startTime, endDate, endTime, label, labelName, labelColor, alert, notes } =
     data;
   const matchingLabel = useAppSelector((state) =>
-    label ? state.labels.items.find((item) => item.value === label) : undefined,
+    label ? state.labels.items.find((item) => item._id === label) : undefined,
   );
   const resolvedLabelName = labelName ?? matchingLabel?.name;
   const resolvedLabelColor = labelColor ?? matchingLabel?.color;

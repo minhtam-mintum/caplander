@@ -38,6 +38,23 @@ describe('AppHeader', () => {
     expect(screen.getByRole('button', { name: /notifications/i })).toBeInTheDocument();
   });
 
+  it('shows event fetch progress while events are loading', () => {
+    renderWithProviders(<AppHeader />, {
+      preloadedState: {
+        ...storeState,
+        events: { items: [], loading: true, fetchedYears: [] },
+      },
+      initialRoute: ROUTES.MONTH,
+    });
+
+    expect(screen.getByRole('status', { name: /loading events/i })).toBeInTheDocument();
+  });
+
+  it('hides event fetch progress when events are not loading', () => {
+    renderAppHeader();
+    expect(screen.queryByRole('status', { name: /loading events/i })).not.toBeInTheDocument();
+  });
+
   it('renders all four calendar nav tabs', () => {
     renderAppHeader();
     expect(screen.getByText('Year View')).toBeInTheDocument();

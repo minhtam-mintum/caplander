@@ -1,6 +1,7 @@
 import { GhostButton } from 'app/components/molecules/Buttons/GhostButton';
 import { formatRelativeTime, stripHtml } from 'app/components/organisms/AppHeader/components/NotificationPanel/utils';
 import type { IEvent } from 'app/store/slices/eventSlice';
+import { getEventStartMs } from 'app/utils/event';
 
 interface INotificationItemProps {
   event: IEvent;
@@ -9,7 +10,7 @@ interface INotificationItemProps {
 }
 
 export function NotificationItem({ event, isUnread, onClick }: INotificationItemProps) {
-  const plainNotes = stripHtml(event.notes);
+  const plainNotes = stripHtml(event.description ?? '');
 
   return (
     <GhostButton
@@ -19,12 +20,12 @@ export function NotificationItem({ event, isUnread, onClick }: INotificationItem
         className={`mt-1.5 size-2 rounded-full shrink-0 ${isUnread ? 'bg-primary' : 'bg-transparent'}`}
       />
       <div className='min-w-0 flex-1'>
-        <p className='text-body-sm font-semibold text-on-surface truncate'>{event.name}</p>
+        <p className='text-body-sm font-semibold text-on-surface truncate'>{event.title}</p>
         {plainNotes && (
           <p className='text-body-sm text-on-surface-variant truncate'>{plainNotes}</p>
         )}
         <p className='text-label-sm text-on-surface-variant mt-0.5'>
-          {formatRelativeTime(event.start)}
+          {formatRelativeTime(getEventStartMs(event))}
         </p>
       </div>
     </GhostButton>

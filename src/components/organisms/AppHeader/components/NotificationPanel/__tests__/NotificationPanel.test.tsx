@@ -5,23 +5,24 @@ import { renderWithProviders } from 'app/test/utils';
 import type { IEvent } from 'app/store/slices/eventSlice';
 
 const EVENT: IEvent = {
-  id: 'evt-1',
-  name: 'Stand-up',
-  start: Date.now() + 3600000, // 1 hour from now
-  end: Date.now() + 7200000,
+  _id: 'evt-1',
+  title: 'Stand-up',
+  startDate: new Date(Date.now() + 3600000).toISOString(), // 1 hour from now
+  endDate: new Date(Date.now() + 7200000).toISOString(),
+  allDay: false,
   alert: 900000,
-  label: 'work',
-  notes: '',
+  labelId: 'work',
+  description: '',
 };
 
 const storeWithNotification = {
   events: { items: [EVENT] },
-  notifications: { readIds: [], notifiedIds: [EVENT.id] },
+  notifications: { readIds: [], notifiedIds: [EVENT._id] },
 };
 
 const storeRead = {
   events: { items: [EVENT] },
-  notifications: { readIds: [EVENT.id], notifiedIds: [EVENT.id] },
+  notifications: { readIds: [EVENT._id], notifiedIds: [EVENT._id] },
 };
 
 const storeEmpty = {
@@ -71,7 +72,7 @@ describe('NotificationPanel', () => {
     await userEvent.click(screen.getByText('Stand-up'));
 
     expect(onEventClick).toHaveBeenCalledWith(
-      expect.objectContaining({ id: EVENT.id, name: EVENT.name }),
+      expect.objectContaining({ id: EVENT._id, name: EVENT.title }),
     );
   });
 
@@ -82,7 +83,7 @@ describe('NotificationPanel', () => {
     await userEvent.click(screen.getByRole('button', { name: /notifications/i }));
     await userEvent.click(screen.getByText('Stand-up'));
 
-    expect(store.getState().notifications.readIds).toContain(EVENT.id);
+    expect(store.getState().notifications.readIds).toContain(EVENT._id);
     expect(screen.queryByText('Notifications')).not.toBeInTheDocument();
   });
 
@@ -95,6 +96,6 @@ describe('NotificationPanel', () => {
     const panel = screen.getByText('Notifications').closest('div')!;
     await userEvent.click(within(panel).getByText('Mark all as read'));
 
-    expect(store.getState().notifications.readIds).toContain(EVENT.id);
+    expect(store.getState().notifications.readIds).toContain(EVENT._id);
   });
 });

@@ -1,11 +1,25 @@
-import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { apiGetLabels, apiCreateLabel, apiUpdateLabel, apiDeleteLabel } from 'app/services/api';
+import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from '@reduxjs/toolkit';
+import {
+  apiGetLabels,
+  apiCreateLabel,
+  apiUpdateLabel,
+  apiDeleteLabel,
+} from 'app/services/api';
 import { setAuth, logout, setAnonymous } from './authSlice';
 
 export interface ILabel {
+  _id: string;
+  userId: string;
+  name: string;
+  color: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface ILabelInput {
   color: string;
   name: string;
-  value: string;
 }
 
 interface ILabelState {
@@ -16,6 +30,40 @@ interface ILabelState {
 
 type AuthSliceState = { user: { _id: string } | null; isAnonymous: boolean };
 
+interface ILegacyLabel extends ILabelInput {
+  _id?: string;
+  value?: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
+}
+
+function createLocalLabel(label: ILabelInput, id: string = crypto.randomUUID()): ILabel {
+  const now = new Date().toISOString();
+  return {
+    _id: id,
+    userId: '',
+    name: label.name,
+    color: label.color,
+    createdAt: now,
+    updatedAt: now,
+    __v: 0,
+  };
+}
+
+function normalizeLabel(label: ILegacyLabel): ILabel {
+  return {
+    _id: label._id ?? label.value ?? crypto.randomUUID(),
+    userId: label.userId ?? '',
+    name: label.name,
+    color: label.color,
+    createdAt: label.createdAt ?? new Date().toISOString(),
+    updatedAt: label.updatedAt ?? label.createdAt ?? new Date().toISOString(),
+    __v: label.__v ?? 0,
+  };
+}
+
 export const fetchLabelsThunk = createAsyncThunk<
   ILabel[],
   void,
@@ -23,8 +71,7 @@ export const fetchLabelsThunk = createAsyncThunk<
 >(
   'labels/fetch',
   async () => {
-    const apiLabels = await apiGetLabels();
-    return apiLabels.map((l) => ({ value: l._id, name: l.name, color: l.color }));
+    return apiGetLabels();
   },
   {
     condition: (_, { getState }) => {
@@ -37,24 +84,30 @@ export const fetchLabelsThunk = createAsyncThunk<
 
 export const addLabelThunk = createAsyncThunk<
   ILabel,
-  ILabel,
+  ILabelInput,
   { state: { auth: AuthSliceState } }
 >('labels/add', async (label, { getState }) => {
   const { auth } = getState();
-  if (!auth.user || auth.isAnonymous) return { ...label, value: crypto.randomUUID() };
-  const created = await apiCreateLabel({ name: label.name, color: label.color });
-  return { value: created._id, name: created.name, color: created.color };
+  if (!auth.user || auth.isAnonymous) return createLocalLabel(label);
+  return apiCreateLabel({ name: label.name, color: label.color });
 });
 
 export const updateLabelThunk = createAsyncThunk<
   ILabel,
   { id: string; name: string; color: string },
-  { state: { auth: AuthSliceState } }
+  { state: { auth: AuthSliceState; labels: ILabelState } }
 >('labels/update', async ({ id, name, color }, { getState }) => {
-  const { auth } = getState();
-  if (!auth.user || auth.isAnonymous) return { value: id, name, color };
-  const updated = await apiUpdateLabel(id, { name, color });
-  return { value: updated._id, name: updated.name, color: updated.color };
+  const { auth, labels } = getState();
+  if (!auth.user || auth.isAnonymous) {
+    const existing = labels.items.find((label) => label._id === id);
+    return {
+      ...(existing ?? createLocalLabel({ name, color }, id)),
+      name,
+      color,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+  return apiUpdateLabel(id, { name, color });
 });
 
 export const deleteLabelThunk = createAsyncThunk<
@@ -74,31 +127,22 @@ const initialState: ILabelState = {
   fetched: false,
 };
 
+const clearOldSession = (state: ILabelState) => {
+  state.items = [];
+  state.fetched = false;
+  state.loading = false;
+};
+
 const labelSlice = createSlice({
   name: 'labels',
   initialState,
   reducers: {
     setLabels: (state, action: PayloadAction<ILabel[]>) => {
-      state.items = action.payload;
+      state.items = action.payload.map(normalizeLabel);
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(setAuth, (state) => {
-        state.items = [];
-        state.fetched = false;
-        state.loading = false;
-      })
-      .addCase(logout, (state) => {
-        state.items = [];
-        state.fetched = false;
-        state.loading = false;
-      })
-      .addCase(setAnonymous, (state) => {
-        state.items = [];
-        state.fetched = false;
-        state.loading = false;
-      })
       .addCase(fetchLabelsThunk.pending, (state) => {
         state.loading = true;
       })
@@ -114,12 +158,13 @@ const labelSlice = createSlice({
         state.items.push(action.payload);
       })
       .addCase(updateLabelThunk.fulfilled, (state, action) => {
-        const idx = state.items.findIndex((l) => l.value === action.payload.value);
+        const idx = state.items.findIndex((l) => l._id === action.payload._id);
         if (idx !== -1) state.items[idx] = action.payload;
       })
       .addCase(deleteLabelThunk.fulfilled, (state, action) => {
-        state.items = state.items.filter((l) => l.value !== action.payload);
-      });
+        state.items = state.items.filter((l) => l._id !== action.payload);
+      })
+      .addMatcher(isAnyOf(setAuth, logout, setAnonymous), clearOldSession);
   },
 });
 

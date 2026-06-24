@@ -6,11 +6,9 @@ import { Toolbar } from 'app/components/molecules/Toolbar';
 import { TitleMonthPage } from './components/Title';
 import { MonthViewGrid } from './components/MonthViewGrid';
 import type { ITitleMonthPageHandle, IMonthViewGridHandle } from './types';
-import { MONTH_NAMES } from 'app/utils/calendar';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import { useSeekDate } from 'app/hooks/useSeekDate';
-
-const formatTitle = (date: Date) => `${MONTH_NAMES[date.getMonth()]} ${date.getFullYear()}`;
+import { getEventFormData } from 'app/utils/event';
 
 export function MonthView() {
   const defaultDate = useRef(new Date()).current;
@@ -21,19 +19,7 @@ export function MonthView() {
   const dateCursor = useRef(defaultDate);
 
   const handleEventClick = useCallback((event: IEvent) => {
-    modalRef.current?.open({
-      id: event.id,
-      name: event.name,
-      startDate: new Date(Math.floor(event.start / 86400000) * 86400000),
-      startTime: event.start % 86400000,
-      endDate: new Date(Math.floor(event.end / 86400000) * 86400000),
-      endTime: event.end % 86400000,
-      alert: event.alert,
-      label: event.label,
-      labelName: event.labelName,
-      labelColor: event.labelColor,
-      notes: event.notes,
-    });
+    modalRef.current?.open(getEventFormData(event));
   }, []);
 
   const handleDayClick = useCallback((date: Date) => {
@@ -48,14 +34,14 @@ export function MonthView() {
   useSeekDate((d) => {
     dateCursor.current = d;
     gridRef.current?.updateMonth(d.getFullYear(), d.getMonth());
-    titleRef.current?.setTitle(formatTitle(d));
+    titleRef.current?.setDate(d);
   });
 
   const fetchForYear = useFetchForYear();
   const handleSync = (newDate: Date) => {
     dateCursor.current = newDate;
     gridRef.current?.updateMonth(newDate.getFullYear(), newDate.getMonth());
-    titleRef.current?.setTitle(formatTitle(newDate));
+    titleRef.current?.setDate(newDate);
     fetchForYear(newDate.getFullYear());
   };
   const handlePrev = () => {
@@ -76,7 +62,7 @@ export function MonthView() {
       <DayDrawer ref={drawerRef} onAddEvent={handleAddEvent} onEventClick={handleEventClick} />
       <Toolbar
         align='end'
-        title={<TitleMonthPage defaultTitle={formatTitle(defaultDate)} ref={titleRef} />}
+        title={<TitleMonthPage defaultDate={defaultDate} ref={titleRef} onMonthChange={handleSync} />}
         onPrev={handlePrev}
         onNext={handleNext}
         onToday={handleToday}

@@ -1,11 +1,4 @@
 import type { IEvent } from 'app/store/slices/eventSlice';
-export interface ITitleWeekPageHandle {
-  setTitle: (title: string) => void;
-}
-
-export interface ITitleWeekPageProps {
-  defaultTitle: string;
-}
 
 export type DragInfo =
   | { type: 'allDay'; id: string; grabOffset: number; span: number }

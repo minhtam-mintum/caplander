@@ -1,5 +1,6 @@
 import type { IEvent } from 'app/store/slices/eventSlice';
 import type { EventFormData } from 'app/components/organisms/EventModal';
+import { getEventFormData } from 'app/utils/event';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -40,15 +41,5 @@ export function formatRelativeTime(timestamp: number): string {
 }
 
 export function toFormData(event: IEvent): Partial<EventFormData> {
-  return {
-    id: event.id,
-    name: event.name,
-    startDate: new Date(Math.floor(event.start / 86400000) * 86400000),
-    startTime: event.start % 86400000,
-    endDate: new Date(Math.floor(event.end / 86400000) * 86400000),
-    endTime: event.end % 86400000,
-    alert: event.alert as EventFormData['alert'],
-    label: event.label,
-    notes: event.notes,
-  };
+  return getEventFormData(event);
 }
