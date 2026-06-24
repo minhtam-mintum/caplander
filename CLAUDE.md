@@ -62,6 +62,23 @@ import { Button } from '../../components/Button';   // ❌ uses ../
 import { useAuth } from '../../../hooks/useAuth';   // ❌ uses ../
 \`\`\`
 
+## Styling Conventions
+
+### Tailwind important modifiers
+- ALWAYS use Tailwind CSS v4 trailing important modifier syntax: `size-9!`, `rounded-[10px]!`, `px-3!`.
+- For variants, place the important modifier at the end of the utility: `hover:bg-surface-container-high!`.
+- NEVER use the old leading important syntax: `!size-9`, `!rounded-[10px]`, `hover:!bg-surface-container-high`.
+
+### Correct
+\`\`\`tsx
+<IconButton className='size-9! rounded-[10px]! hover:bg-surface-container-high!' />
+\`\`\`
+
+### Incorrect
+\`\`\`tsx
+<IconButton className='!size-9 !rounded-[10px] hover:!bg-surface-container-high' />
+\`\`\`
+
 ## Performance Conventions
 
 ### State colocation

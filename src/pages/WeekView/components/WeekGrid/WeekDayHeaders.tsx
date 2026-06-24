@@ -35,6 +35,10 @@ export const WeekDayHeaders = ({ weekDays }: IWeekDayHeadersProps) => {
           </div>
         );
       })}
+      <div
+        aria-hidden='true'
+        className='w-(--week-scrollbar-gutter) shrink-0 border-b border-outline-variant'
+      />
     </div>
   );
 };

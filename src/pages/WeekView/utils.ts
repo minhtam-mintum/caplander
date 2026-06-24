@@ -2,6 +2,7 @@ import type { WeekStart } from 'app/utils/calendar';
 import { toDateStr } from 'app/utils/calendar';
 import { DAY_MS } from 'app/pages/MonthView/utils';
 import type { IEvent } from 'app/store/slices/eventSlice';
+import { getEventEndMs, getEventId, getEventStartMs } from 'app/utils/event';
 
 export function getWeekDays(refDate: Date, weekStart: WeekStart = 1): Date[] {
   const day = refDate.getDay();
@@ -41,15 +42,17 @@ export function layoutTimedEvents(
 ): Map<string, { col: number; totalCols: number }> {
   if (events.length === 0) return new Map();
 
-  const sorted = [...events].sort((a, b) => a.start - b.start || b.end - a.end);
+  const sorted = [...events].sort(
+    (a, b) => getEventStartMs(a) - getEventStartMs(b) || getEventEndMs(b) - getEventEndMs(a),
+  );
   const colEnds: number[] = [];
   const eventToCol = new Map<string, number>();
 
   for (const ev of sorted) {
-    let col = colEnds.findIndex((end) => end <= ev.start);
+    let col = colEnds.findIndex((end) => end <= getEventStartMs(ev));
     if (col === -1) col = colEnds.length;
-    colEnds[col] = ev.end;
-    eventToCol.set(ev.id, col);
+    colEnds[col] = getEventEndMs(ev);
+    eventToCol.set(getEventId(ev), col);
   }
 
   // Union-find to group transitively overlapping events
@@ -64,7 +67,10 @@ export function layoutTimedEvents(
   }
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
-      if (sorted[i].end > sorted[j].start && sorted[j].end > sorted[i].start) {
+      if (
+        getEventEndMs(sorted[i]) > getEventStartMs(sorted[j]) &&
+        getEventEndMs(sorted[j]) > getEventStartMs(sorted[i])
+      ) {
         const ri = find(i), rj = find(j);
         if (ri !== rj) parent[ri] = rj;
       }
@@ -74,15 +80,15 @@ export function layoutTimedEvents(
   const compMaxCol = new Map<number, number>();
   for (let i = 0; i < n; i++) {
     const root = find(i);
-    const col = eventToCol.get(sorted[i].id) ?? 0;
+    const col = eventToCol.get(getEventId(sorted[i])) ?? 0;
     compMaxCol.set(root, Math.max(compMaxCol.get(root) ?? 0, col));
   }
 
   const result = new Map<string, { col: number; totalCols: number }>();
   for (let i = 0; i < n; i++) {
     const root = find(i);
-    result.set(sorted[i].id, {
-      col: eventToCol.get(sorted[i].id) ?? 0,
+    result.set(getEventId(sorted[i]), {
+      col: eventToCol.get(getEventId(sorted[i])) ?? 0,
       totalCols: (compMaxCol.get(root) ?? 0) + 1,
     });
   }
@@ -105,7 +111,7 @@ export function clampHour(h: number, m: number, minH: number, maxH: number): [nu
 }
 
 export function isMultiDay(event: IEvent): boolean {
-  return event.end - event.start >= DAY_MS;
+  return getEventEndMs(event) - getEventStartMs(event) >= DAY_MS;
 }
 
 // Events are stored as Date.UTC(...) + offsetMs, so extract time via UTC offset

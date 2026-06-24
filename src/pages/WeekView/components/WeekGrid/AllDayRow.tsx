@@ -8,6 +8,13 @@ import { updateEventThunk } from 'app/store/slices/eventSlice';
 import type { IEvent } from 'app/store/slices/eventSlice';
 import type { BarItem } from 'app/pages/MonthView/types';
 import type { DragInfo } from 'app/pages/WeekView/types';
+import {
+  getEventEndMs,
+  getEventId,
+  getEventLabelId,
+  getEventStartMs,
+  withEventTime,
+} from 'app/utils/event';
 
 interface IAllDayRowProps {
   weekDays: Date[];
@@ -64,10 +71,10 @@ export const AllDayRow = ({
     grabbed.setDate(weekDays[0].getDate() + (bar.startCol - 1) + dayInBar);
     const grabbedUtc = Date.UTC(grabbed.getFullYear(), grabbed.getMonth(), grabbed.getDate());
     const grabOffset = Math.round((grabbedUtc - bar.evStartMs) / DAY_MS);
-    onDragStart({ type: 'allDay', id: bar.ev.id, grabOffset, span: bar.evSpan });
+    onDragStart({ type: 'allDay', id: getEventId(bar.ev), grabOffset, span: bar.evSpan });
     e.dataTransfer.effectAllowed = 'move';
     try {
-      e.dataTransfer.setData('text/plain', bar.ev.id);
+      e.dataTransfer.setData('text/plain', getEventId(bar.ev));
     } catch {
       /* */
     }
@@ -88,7 +95,7 @@ export const AllDayRow = ({
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, cellDate: Date) => {
     e.preventDefault();
     if (!dragInfo) return;
-    const event = events.find((ev) => ev.id === dragInfo.id);
+    const event = events.find((ev) => getEventId(ev) === dragInfo.id);
     if (event) {
       if (dragInfo.type === 'allDay') {
         const shifted = new Date(cellDate);
@@ -99,7 +106,13 @@ export const AllDayRow = ({
           shifted.getDate(),
         );
         dispatch(
-          updateEventThunk({ ...event, start: newStartUtcMs, end: newStartUtcMs + (event.end - event.start) }),
+          updateEventThunk(
+            withEventTime(
+              event,
+              newStartUtcMs,
+              newStartUtcMs + (getEventEndMs(event) - getEventStartMs(event)),
+            ),
+          ),
         );
       } else {
         const newStartUtcMs = Date.UTC(
@@ -107,7 +120,7 @@ export const AllDayRow = ({
           cellDate.getMonth(),
           cellDate.getDate(),
         );
-        dispatch(updateEventThunk({ ...event, start: newStartUtcMs, end: newStartUtcMs + DAY_MS }));
+        dispatch(updateEventThunk(withEventTime(event, newStartUtcMs, newStartUtcMs + DAY_MS)));
       }
     }
     onDragEnd();
@@ -137,9 +150,11 @@ export const AllDayRow = ({
           />
         );
       })}
+      <div aria-hidden='true' className='w-(--week-scrollbar-gutter) shrink-0' />
       <div
         className='absolute inset-0 pointer-events-none'
         style={{
+          right: 'var(--week-scrollbar-gutter)',
           display: 'grid',
           gridTemplateColumns: 'repeat(7, minmax(96px, 1fr))',
           gridAutoRows: `${ALL_DAY_ROW_H}px`,
@@ -147,11 +162,12 @@ export const AllDayRow = ({
           padding: `${ALL_DAY_PAD}px 0`,
         }}>
         {allDayLayout.visibleBars.map((bar, bi) => {
-          const color = labelColorMap[bar.ev.label] ?? DEFAULT_COLOR;
-          const isDragging = dragInfo?.id === bar.ev.id;
+          const eventId = getEventId(bar.ev);
+          const color = labelColorMap[getEventLabelId(bar.ev)] ?? DEFAULT_COLOR;
+          const isDragging = dragInfo?.id === eventId;
           return (
             <div
-              key={`${bar.ev.id}-${bi}`}
+              key={`${eventId}-${bi}`}
               draggable
               className={cn(
                 'pointer-events-auto flex items-center px-2 text-[12px] font-medium overflow-hidden whitespace-nowrap transition-all select-none',
@@ -175,7 +191,7 @@ export const AllDayRow = ({
               }}>
               <span className='overflow-hidden text-ellipsis'>
                 {bar.startsBefore && '‹ '}
-                {bar.ev.name}
+                {bar.ev.title}
                 {bar.endsAfter && ' ›'}
               </span>
             </div>

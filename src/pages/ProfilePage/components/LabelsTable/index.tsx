@@ -26,7 +26,7 @@ function LabelsTable() {
 
   const handleAdd = useCallback(
     async (name: string, color: string) => {
-      await dispatch(addLabelThunk({ name, color, value: '' }));
+      await dispatch(addLabelThunk({ name, color }));
     },
     [dispatch],
   );
@@ -70,7 +70,7 @@ function LabelsTable() {
             ) : (
               labels.map((label) => (
                 <LabelRow
-                  key={label.value}
+                  key={label._id}
                   label={label}
                   onSave={handleSave}
                   onDelete={handleDelete}

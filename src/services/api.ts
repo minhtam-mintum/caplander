@@ -13,12 +13,15 @@ export interface IUser {
 
 export interface IApiLabel {
   _id: string;
+  userId: string;
   name: string;
   color: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
 }
 
-export interface IApiEvent {
-  _id: string;
+export interface IApiEventPayload {
   title: string;
   description?: string;
   labelId?: string | IApiLabel;
@@ -26,6 +29,15 @@ export interface IApiEvent {
   endDate: string;
   allDay: boolean;
   color?: string;
+  alert?: number;
+}
+
+export interface IApiEvent extends IApiEventPayload {
+  _id: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 }
 
 // ─── Token management ─────────────────────────────────────────────────────────
@@ -188,28 +200,11 @@ export async function apiGetEvent(id: string) {
   return request<IApiEvent>(`/events/${id}`);
 }
 
-export async function apiCreateEvent(data: {
-  title: string;
-  description?: string;
-  labelId?: string;
-  startDate: string;
-  endDate: string;
-  allDay: boolean;
-}) {
+export async function apiCreateEvent(data: IApiEventPayload) {
   return request<IApiEvent>('/events', { method: 'POST', body: JSON.stringify(data) });
 }
 
-export async function apiUpdateEvent(
-  id: string,
-  data: {
-    title?: string;
-    description?: string;
-    labelId?: string;
-    startDate?: string;
-    endDate?: string;
-    allDay?: boolean;
-  },
-) {
+export async function apiUpdateEvent(id: string, data: Partial<IApiEventPayload>) {
   return request<IApiEvent>(`/events/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 }
 

@@ -13,7 +13,16 @@ const D08 = Date.UTC(2024, 2, 8);  // Fri before week
 const D20 = Date.UTC(2024, 2, 20); // Wed after week
 
 function mkEvent(id: string, start: number, end: number): IEvent {
-  return { id, name: id, start, end, alert: 0, label: '', notes: '' };
+  return {
+    _id: id,
+    title: id,
+    startDate: new Date(start).toISOString(),
+    endDate: new Date(end).toISOString(),
+    allDay: false,
+    alert: 0,
+    labelId: '',
+    description: '',
+  };
 }
 
 describe('layoutWeek', () => {

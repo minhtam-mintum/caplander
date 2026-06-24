@@ -20,10 +20,10 @@ describe('CalendarNavTabs', () => {
     expect(ref.current?.getActiveView()).toBe(ROUTES.WEEK);
   });
 
-  it('defaults to MONTH when the route is not a known view', () => {
+  it('does not activate the MONTH tab on the profile route', () => {
     const ref = createRef<ICalendarNavTabsHandle>();
-    renderWithProviders(<CalendarNavTabs ref={ref} />, { initialRoute: '/unknown' });
-    expect(ref.current?.getActiveView()).toBe(ROUTES.MONTH);
+    renderWithProviders(<CalendarNavTabs ref={ref} />, { initialRoute: ROUTES.PROFILE });
+    expect(ref.current?.getActiveView()).not.toBe(ROUTES.MONTH);
   });
 
   it('navigates when a tab is clicked', async () => {

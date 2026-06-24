@@ -1,6 +1,6 @@
 # Caplander
 
-An event management app built with React 19, TypeScript, and Vite. Create and manage events across four calendar views, and receive browser announcements the moment each event starts.
+An account-ready calendar app built with React 19, TypeScript, Redux Toolkit, and Vite. Plan events across year, month, week, and day views, search your schedule quickly, and receive browser notifications when events are about to start.
 
 **Live demo:** [caplander.netlify.app](https://caplander.netlify.app)
 
@@ -8,13 +8,15 @@ An event management app built with React 19, TypeScript, and Vite. Create and ma
 
 ## Features
 
-- **Four calendar views** — Year, Month, Week, and Day
-- **Event management** — Create, edit, and delete events with title, date, start/end times, label, and rich text notes
-- **Labels** — Categorize events with custom color-coded labels
-- **Event start announcements** — A timer fires a browser notification the moment each event starts; an optional alert offset can also notify you in advance
-- **Persistent storage** — Events are saved to `localStorage` and survive page reloads
+- **Calendar views** — Year, Month, Week, and Day views with quick navigation and lazy-loaded routes
+- **Event management** — Create, edit, delete, and inspect timed, all-day, and multi-day events with labels, alert offsets, and rich text notes
+- **Account and guest modes** — Sign in for API-backed events and labels, or continue anonymously with local `localStorage` persistence
+- **Labels and profile** — Manage color-coded labels and account details from the profile page
+- **Search and navigation** — Search events from the header and jump straight to the matching date in the active calendar view
+- **Notifications** — Browser/service-worker notifications for advance alerts and event start times, with a read/unread notification panel
+- **Dark mode** — Toggle light and dark themes from the app header
 - **Rich text notes** — Powered by Lexical with bold, italic, lists, links, and code blocks
-- **Responsive layout** — Tailwind CSS 4 utility-first styling with SCSS modules for component-scoped styles
+- **Responsive layout** — Tailwind CSS 4 utility-first styling with SCSS modules for component-scoped editor/button styles
 
 ## Tech Stack
 
@@ -22,12 +24,14 @@ An event management app built with React 19, TypeScript, and Vite. Create and ma
 |---|---|
 | Framework | React 19 + TypeScript |
 | Build | Vite 8 |
-| Routing | React Router v7 (lazy-loaded views) |
+| Routing | React Router v7 with lazy-loaded app/auth routes |
 | State | Redux Toolkit + React Redux |
+| API | Custom Fetch service with access/refresh token handling |
 | Forms | React Hook Form + Yup validation |
 | Rich text | Lexical |
 | Styling | Tailwind CSS v4 + SCSS Modules |
 | Icons | Lucide React |
+| Tests | Vitest + Testing Library |
 
 ## Getting Started
 
@@ -43,9 +47,11 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 | Script | Description |
 |---|---|
 | `npm run dev` | Start the development server with HMR |
-| `npm run build` | Type-check and build for production |
+| `npm run build` | Build for production |
 | `npm run preview` | Preview the production build locally |
 | `npm run lint` | Run ESLint |
+| `npm run test` | Run Vitest in watch mode |
+| `npm run test:run` | Run Vitest once |
 
 ## Project Structure
 
@@ -53,24 +59,31 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 src/
 ├── components/
 │   ├── atoms/          # Base UI elements (Button, Input, Badge, …)
-│   ├── molecules/      # Composite components (Calendar, Modal, TimePicker, …)
-│   └── organisms/      # Feature-level components (AppHeader, EventModal, NotificationPanel, …)
+│   ├── molecules/      # Composite components (Calendar, buttons, inputs, modal, rich text editor, …)
+│   └── organisms/      # Feature-level components (AppHeader, EventModal, DayDrawer, LoadingPage, …)
 ├── pages/
 │   ├── YearView/
 │   ├── MonthView/
 │   ├── WeekView/
-│   └── DayView/
+│   ├── DayView/
+│   ├── LoginPage/
+│   ├── RegisterPage/
+│   └── ProfilePage/
+├── routes/             # Browser router, route layout, lazy route definitions
+├── services/           # API client and auth token lifecycle
 ├── store/
-│   └── slices/         # eventSlice, notificationSlice
-├── hooks/              # useNotifications, useLabels
+│   └── slices/         # authSlice, eventSlice, labelSlice, notificationSlice
+├── hooks/              # useNotifications, useLabels, useFetchForYear, useSeekDate, useDarkMode
+├── test/               # Shared test setup and render helpers
 ├── types/              # Shared TypeScript interfaces
-└── utils/              # Date/calendar helpers, cn, scrollLock
+└── utils/              # Date/calendar/event/auth helpers, cn, scrollLock
 ```
 
 ## Conventions
 
 - Component props interfaces follow the `I<ComponentName>Props` naming pattern.
 - Imports use the `app/*` alias (maps to `src/`) — no `../` relative traversal.
+- Tailwind CSS important utilities use trailing `!` syntax, e.g. `size-9!` and `hover:bg-surface-container-high!`; do not use `!size-9` or `hover:!bg-surface-container-high`.
 - State is colocated as close to its usage as possible; parent-to-child control uses `forwardRef` + `useImperativeHandle`.
 
 See [CLAUDE.md](CLAUDE.md) for full coding conventions.

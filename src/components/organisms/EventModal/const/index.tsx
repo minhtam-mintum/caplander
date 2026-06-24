@@ -1,7 +1,7 @@
 import * as yup from 'yup';
 import { Tag } from 'lucide-react';
 import type { SelectItem } from 'app/components/molecules/Selects/SelectRHF';
-import type { ILabel } from 'app/hooks/useLabels';
+import type { ILabel, ILabelInput } from 'app/hooks/useLabels';
 import { CreateNewLabel } from '../components/CreateNewLabel';
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
@@ -54,7 +54,7 @@ export interface EventFormData extends yup.InferType<typeof eventModalSchema> {
 
 export function buildLabelOptions(
   labels: ILabel[],
-  onAdd: (label: ILabel) => Promise<ILabel>,
+  onAdd: (label: ILabelInput) => Promise<ILabel>,
 ): SelectItem[] {
   return [
     ...labels.map((l) => ({
@@ -64,7 +64,7 @@ export function buildLabelOptions(
           {l.name}
         </span>
       ),
-      value: l.value,
+      value: l._id,
     })),
     { custom: <CreateNewLabel onAdd={onAdd} /> },
   ];

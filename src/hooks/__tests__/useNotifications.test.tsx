@@ -3,7 +3,6 @@ import { Provider } from 'react-redux';
 import type { PropsWithChildren } from 'react';
 import { makeStore } from 'app/test/utils';
 import { useNotifications } from 'app/hooks/useNotifications';
-import { addEvent } from 'app/store/slices/eventSlice';
 import type { IEvent } from 'app/store/slices/eventSlice';
 
 const preloadedState = {
@@ -63,11 +62,14 @@ describe('useNotifications', () => {
     vi.useFakeTimers();
     const now = Date.now();
     const event: IEvent = {
-      id: 'evt-1', name: 'Meeting',
-      start: now + 30 * 60_000,  // 30 min from now
-      end: now + 90 * 60_000,
+      _id: 'evt-1',
+      title: 'Meeting',
+      startDate: new Date(now + 30 * 60_000).toISOString(),  // 30 min from now
+      endDate: new Date(now + 90 * 60_000).toISOString(),
+      allDay: false,
       alert: 5 * 60_000,         // alert 5 min before start
-      label: 'work', notes: '',
+      labelId: 'work',
+      description: '',
     };
     const store = makeStore({ ...preloadedState, events: { items: [event] } });
     const { unmount } = renderHook(() => useNotifications(), { wrapper: makeWrapper(store) });
@@ -77,16 +79,19 @@ describe('useNotifications', () => {
   });
 
   it('dispatches addNotified after timer fires', () => {
-    // Pin timezone offset to 0 so delay = event.start - event.alert - now (no tz shift)
+    // Pin timezone offset to 0 so delay = event.startDate - event.alert - now (no tz shift)
     vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(0);
     vi.useFakeTimers();
     const now = Date.now();
     const event: IEvent = {
-      id: 'evt-fire', name: 'Fire Event',
-      start: now + 100, // delay = 100ms - 0 (alert) - 0 (tzOffset) = 100ms
-      end: now + 3_700_000,
+      _id: 'evt-fire',
+      title: 'Fire Event',
+      startDate: new Date(now + 100).toISOString(), // delay = 100ms - 0 (alert) - 0 (tzOffset) = 100ms
+      endDate: new Date(now + 3_700_000).toISOString(),
+      allDay: false,
       alert: 0,
-      label: 'work', notes: '',
+      labelId: 'work',
+      description: '',
     };
     const store = makeStore({ ...preloadedState, events: { items: [event] } });
 
@@ -106,9 +111,14 @@ describe('useNotifications', () => {
     setupNotificationMock('denied');
     const now = Date.now();
     const event: IEvent = {
-      id: 'evt-denied', name: 'Denied',
-      start: now + 60_000, end: now + 120_000,
-      alert: 0, label: 'work', notes: '',
+      _id: 'evt-denied',
+      title: 'Denied',
+      startDate: new Date(now + 60_000).toISOString(),
+      endDate: new Date(now + 120_000).toISOString(),
+      allDay: false,
+      alert: 0,
+      labelId: 'work',
+      description: '',
     };
     const store = makeStore({ ...preloadedState, events: { items: [event] } });
     renderHook(() => useNotifications(), { wrapper: makeWrapper(store) });

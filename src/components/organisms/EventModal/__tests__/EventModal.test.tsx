@@ -62,4 +62,35 @@ describe('EventModal', () => {
 
     expect(screen.queryByText('New Event')).not.toBeInTheDocument();
   });
+
+  it('shows label details from the label store when event data only has a label id', () => {
+    const ref = createRef<IEventModalHandle>();
+    renderWithProviders(<EventModal ref={ref} />, {
+      preloadedState: {
+        ...storeState,
+        labels: {
+          items: [{ _id: 'health', name: 'Health', color: '#16a34a' }],
+          loading: false,
+          fetched: true,
+        },
+      },
+    });
+
+    act(() =>
+      ref.current!.open({
+        id: 'evt-1',
+        name: 'Community Wellness Fair',
+        startDate: new Date('2026-06-10T00:00:00.000Z'),
+        startTime: 0,
+        endDate: new Date('2026-06-10T00:00:00.000Z'),
+        endTime: 32400000,
+        alert: 0,
+        label: 'health',
+        notes: 'Bring a water bottle',
+      }),
+    );
+
+    expect(screen.getByText('Label')).toBeInTheDocument();
+    expect(screen.getByText('Health')).toBeInTheDocument();
+  });
 });

@@ -7,6 +7,7 @@ import { EventModal, type IEventModalHandle } from 'app/components/organisms/Eve
 import type { IEvent } from 'app/store/slices/eventSlice';
 import type { ITitleDayPageHandle } from 'app/pages/DayView/types';
 import { useSeekDate } from 'app/hooks/useSeekDate';
+import { getEventFormData } from 'app/utils/event';
 
 export function DayView() {
   const gridRef = useRef<IDayTimeGridHandle>(null);
@@ -26,33 +27,37 @@ export function DayView() {
     fetchForYear(date.getFullYear());
   }, [fetchForYear]);
 
+  const handleTitleDayChange = useCallback((date: Date) => {
+    gridRef.current?.goToDate(date);
+  }, []);
+
   const handleEventClick = useCallback((event: IEvent) => {
-    modalRef.current?.open({
-      id: event.id,
-      name: event.name,
-      startDate: new Date(Math.floor(event.start / 86400000) * 86400000),
-      startTime: event.start % 86400000,
-      endDate: new Date(Math.floor(event.end / 86400000) * 86400000),
-      endTime: event.end % 86400000,
-      alert: event.alert,
-      label: event.label,
-      labelName: event.labelName,
-      labelColor: event.labelColor,
-      notes: event.notes,
-    });
+    modalRef.current?.open(getEventFormData(event));
   }, []);
 
   return (
-    <main className='max-w-360 mx-auto px-margin py-lg flex flex-col gap-6'>
+    <main className='h-full min-h-0 max-w-360 mx-auto px-margin py-lg flex flex-col gap-4 overflow-hidden'>
       <EventModal ref={modalRef} />
       <Toolbar
         align='start'
-        title={<TitleDayPage defaultDate={defaultDate} ref={titleRef} />}
+        title={
+          <TitleDayPage
+            defaultDate={defaultDate}
+            ref={titleRef}
+            onDayChange={handleTitleDayChange}
+          />
+        }
         onPrev={onPrev}
         onNext={onNext}
         onToday={onToday}
       />
-      <DayTimeGrid ref={gridRef} onDateChange={handleDateChange} onEventClick={handleEventClick} />
+      <div className='min-h-0 flex-1'>
+        <DayTimeGrid
+          ref={gridRef}
+          onDateChange={handleDateChange}
+          onEventClick={handleEventClick}
+        />
+      </div>
     </main>
   );
 }

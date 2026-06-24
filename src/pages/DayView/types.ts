@@ -4,4 +4,5 @@ export interface ITitleDayPageHandle {
 
 export interface ITitleDayPageProps {
   defaultDate: Date;
+  onDayChange: (date: Date) => void;
 }

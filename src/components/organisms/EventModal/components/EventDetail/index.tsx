@@ -3,6 +3,7 @@ import { Bell, Clock, Pencil, Tag, Trash2 } from 'lucide-react';
 import { formatDetailDate, formatTime } from 'app/utils/calendar';
 import { OutlineButton } from 'app/components/molecules/Buttons/OutlineButton';
 import { ALERT_OPTIONS, type EventFormData } from 'app/components/organisms/EventModal/const';
+import { useAppSelector } from 'app/store';
 
 interface IEventDetailProps {
   data: Partial<EventFormData>;
@@ -12,7 +13,13 @@ interface IEventDetailProps {
 }
 
 export function EventDetail({ data, renderFooter, onEdit, onDelete }: IEventDetailProps) {
-  const { startDate, startTime, endDate, endTime, labelName, labelColor, alert, notes } = data;
+  const { startDate, startTime, endDate, endTime, label, labelName, labelColor, alert, notes } =
+    data;
+  const matchingLabel = useAppSelector((state) =>
+    label ? state.labels.items.find((item) => item._id === label) : undefined,
+  );
+  const resolvedLabelName = labelName ?? matchingLabel?.name;
+  const resolvedLabelColor = labelColor ?? matchingLabel?.color;
 
   const alertOption = ALERT_OPTIONS.find((o) => 'value' in o && o.value === alert);
 
@@ -48,14 +55,14 @@ export function EventDetail({ data, renderFooter, onEdit, onDelete }: IEventDeta
 
         {/* Label + Alert */}
         <div className='grid grid-cols-2 gap-4'>
-          {labelName && (
+          {resolvedLabelName && (
             <div className='flex flex-col gap-1.5'>
               <span className='text-label-sm uppercase tracking-widest text-on-surface-variant'>
                 Label
               </span>
               <div className='flex items-center gap-2'>
-                <Tag size={13} style={{ color: labelColor }} className='shrink-0' />
-                <span className='text-body-sm font-medium text-on-surface'>{labelName}</span>
+                <Tag size={13} style={{ color: resolvedLabelColor }} className='shrink-0' />
+                <span className='text-body-sm font-medium text-on-surface'>{resolvedLabelName}</span>
               </div>
             </div>
           )}

@@ -1,8 +1,8 @@
 import { useCallback, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from 'app/store';
-import { fetchLabelsThunk, addLabelThunk } from 'app/store/slices/labelSlice';
+import { fetchLabelsThunk, addLabelThunk, type ILabel } from 'app/store/slices/labelSlice';
 
-export type { ILabel } from 'app/store/slices/labelSlice';
+export type { ILabel, ILabelInput } from 'app/store/slices/labelSlice';
 
 export function useLabels() {
   const dispatch = useAppDispatch();
@@ -14,9 +14,10 @@ export function useLabels() {
   }, [dispatch]);
 
   const addLabel = useCallback(
-    async (label: Parameters<typeof addLabelThunk>[0]) => {
+    async (label: Parameters<typeof addLabelThunk>[0]): Promise<ILabel> => {
       const result = await dispatch(addLabelThunk(label));
-      return addLabelThunk.fulfilled.match(result) ? result.payload : label;
+      if (addLabelThunk.fulfilled.match(result)) return result.payload;
+      throw result.error;
     },
     [dispatch],
   );

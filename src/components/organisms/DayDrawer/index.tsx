@@ -7,6 +7,7 @@ import { DashedButton } from 'app/components/molecules/Buttons/DashedButton';
 import { MONTH_NAMES } from 'app/utils/calendar';
 import { lockScroll, unlockScroll } from 'app/utils/scrollLock';
 import { useAppSelector } from 'app/store';
+import { getEventEndMs, getEventId, getEventStartMs } from 'app/utils/event';
 
 export interface IDayDrawerHandle {
   open: (date: Date) => void;
@@ -71,8 +72,8 @@ export const DayDrawer = forwardRef<IDayDrawerHandle, IDayDrawerProps>(function 
     if (!date) return [];
     const dayUTC = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
     return events.filter((e) => {
-      const startDay = Math.floor(e.start / 86400000) * 86400000;
-      const endDay = Math.floor(e.end / 86400000) * 86400000;
+      const startDay = Math.floor(getEventStartMs(e) / 86400000) * 86400000;
+      const endDay = Math.floor(getEventEndMs(e) / 86400000) * 86400000;
       return startDay <= dayUTC && dayUTC <= endDay;
     });
   }, [date, events]);
@@ -95,7 +96,7 @@ export const DayDrawer = forwardRef<IDayDrawerHandle, IDayDrawerProps>(function 
 
         <div className='flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-3'>
           {dayEvents.map((event) => (
-            <EventItem key={event.id} event={event} onClick={() => onEventClick(event)} />
+            <EventItem key={getEventId(event)} event={event} onClick={() => onEventClick(event)} />
           ))}
           <DashedButton type='button' onClick={() => date && onAddEvent(date)}>
             <Plus size={16} />
@@ -124,12 +125,12 @@ function EventItem({ event, onClick }: IEventItemProps) {
         <div className='flex items-center gap-2'>
           <span className='w-2 h-2 rounded-full bg-primary shrink-0' />
           <span className='text-label-sm font-semibold text-primary'>
-            {formatDatetime(event.start)} — {formatDatetime(event.end)}
+            {formatDatetime(getEventStartMs(event))} — {formatDatetime(getEventEndMs(event))}
           </span>
         </div>
         <ChevronRight size={16} className='text-on-surface-variant shrink-0' />
       </div>
-      <p className='text-body-sm font-semibold text-on-surface'>{event.name}</p>
+      <p className='text-body-sm font-semibold text-on-surface'>{event.title}</p>
     </div>
   );
 }

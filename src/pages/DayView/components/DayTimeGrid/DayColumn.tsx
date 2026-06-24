@@ -15,6 +15,13 @@ import { DEFAULT_COLOR, SNAP_MIN } from 'app/pages/WeekView/const';
 import { DayEventCard } from 'app/components/molecules/DayEventCard';
 import { WeekEventCard } from 'app/components/molecules/WeekEventCard';
 import type { DayDragState } from './types';
+import {
+  getEventEndMs,
+  getEventId,
+  getEventLabelId,
+  getEventStartMs,
+  withEventTime,
+} from 'app/utils/event';
 
 const HOURS = Array.from({ length: DAY_END_HOUR - DAY_START_HOUR }, (_, i) => DAY_START_HOUR + i);
 const TOTAL_HEIGHT = HOURS.length * DAY_HOUR_HEIGHT;
@@ -65,8 +72,8 @@ export const DayColumn = ({
     const gridDiv = gridRef.current;
     if (!gridDiv) return;
     gridDiv.setPointerCapture(e.pointerId);
-    resizeInfoRef.current = { id: event.id, startMs: event.start };
-    setResizeTarget({ id: event.id, newEndMs: event.end });
+    resizeInfoRef.current = { id: getEventId(event), startMs: getEventStartMs(event) };
+    setResizeTarget({ id: getEventId(event), newEndMs: getEventEndMs(event) });
   }, []);
 
   const handleResizeMove = useCallback(
@@ -96,8 +103,8 @@ export const DayColumn = ({
       if (!resizeInfoRef.current) return;
       setResizeTarget((rt) => {
         if (rt) {
-          const event = events.find((ev) => ev.id === rt.id);
-          if (event) dispatch(updateEventThunk({ ...event, end: rt.newEndMs }));
+          const event = events.find((ev) => getEventId(ev) === rt.id);
+          if (event) dispatch(updateEventThunk(withEventTime(event, getEventStartMs(event), rt.newEndMs)));
         }
         return null;
       });
@@ -114,13 +121,13 @@ export const DayColumn = ({
       Math.round((((e.clientY - rect.top) / DAY_HOUR_HEIGHT) * 60) / SNAP_MIN) * SNAP_MIN;
     onDragStart({
       type: 'timed',
-      id: event.id,
+      id: getEventId(event),
       grabOffsetMin: Math.max(0, grabOffsetMin),
-      durationMs: event.end - event.start,
+      durationMs: getEventEndMs(event) - getEventStartMs(event),
     });
     e.dataTransfer.effectAllowed = 'move';
     try {
-      e.dataTransfer.setData('text/plain', event.id);
+      e.dataTransfer.setData('text/plain', getEventId(event));
     } catch {
       /* */
     }
@@ -156,11 +163,11 @@ export const DayColumn = ({
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (!dragState || dragTarget === null) return;
-    const event = events.find((ev) => ev.id === dragState.id);
+    const event = events.find((ev) => getEventId(ev) === dragState.id);
     if (event) {
       const durationMs =
         dragState.type === 'timed' ? dragState.durationMs : DEFAULT_TIMED_DURATION;
-      dispatch(updateEventThunk({ ...event, start: dragTarget, end: dragTarget + durationMs }));
+      dispatch(updateEventThunk(withEventTime(event, dragTarget, dragTarget + durationMs)));
     }
     resetDrag();
   };
@@ -169,7 +176,7 @@ export const DayColumn = ({
 
   let dragPreview: React.ReactNode = null;
   if (dragTarget !== null && dragState) {
-    const src = events.find((ev) => ev.id === dragState.id);
+    const src = events.find((ev) => getEventId(ev) === dragState.id);
     if (src) {
       const durationMs =
         dragState.type === 'timed' ? dragState.durationMs : DEFAULT_TIMED_DURATION;
@@ -184,10 +191,10 @@ export const DayColumn = ({
       if (pStart !== pEnd) {
         dragPreview = (
           <WeekEventCard
-            title={src.name}
+            title={src.title}
             startTime={pStart}
             endTime={pEnd}
-            color={labelColorMap[src.label] ?? DEFAULT_COLOR}
+            color={labelColorMap[getEventLabelId(src)] ?? DEFAULT_COLOR}
             offsetTop={timeToOffset(pStart, DAY_START_HOUR, DAY_HOUR_HEIGHT)}
             height={durationToHeight(pStart, pEnd, DAY_HOUR_HEIGHT)}
             className='pointer-events-none z-20 ring-2 ring-inset ring-current'
@@ -200,9 +207,9 @@ export const DayColumn = ({
 
   let resizePreview: React.ReactNode = null;
   if (resizeTarget && resizeInfoRef.current) {
-    const src = events.find((ev) => ev.id === resizeTarget.id);
+    const src = events.find((ev) => getEventId(ev) === resizeTarget.id);
     if (src) {
-      const [psh, psm] = clampHour(...msToUtcHM(src.start), DAY_START_HOUR, DAY_END_HOUR);
+      const [psh, psm] = clampHour(...msToUtcHM(getEventStartMs(src)), DAY_START_HOUR, DAY_END_HOUR);
       const [peh, pem] = clampHour(
         ...msToUtcHM(resizeTarget.newEndMs),
         DAY_START_HOUR,
@@ -213,10 +220,10 @@ export const DayColumn = ({
       if (pStart !== pEnd) {
         resizePreview = (
           <WeekEventCard
-            title={src.name}
+            title={src.title}
             startTime={pStart}
             endTime={pEnd}
-            color={labelColorMap[src.label] ?? DEFAULT_COLOR}
+            color={labelColorMap[getEventLabelId(src)] ?? DEFAULT_COLOR}
             offsetTop={timeToOffset(pStart, DAY_START_HOUR, DAY_HOUR_HEIGHT)}
             height={durationToHeight(pStart, pEnd, DAY_HOUR_HEIGHT)}
             className='pointer-events-none z-20 ring-2 ring-inset ring-current'
@@ -250,15 +257,18 @@ export const DayColumn = ({
 
       <div className='absolute inset-0'>
         {timedEvents.map((event) => {
-          const [sh, sm] = clampHour(...msToUtcHM(event.start), DAY_START_HOUR, DAY_END_HOUR);
-          const [eh, em] = clampHour(...msToUtcHM(event.end), DAY_START_HOUR, DAY_END_HOUR);
+          const eventId = getEventId(event);
+          const start = getEventStartMs(event);
+          const end = getEventEndMs(event);
+          const [sh, sm] = clampHour(...msToUtcHM(start), DAY_START_HOUR, DAY_END_HOUR);
+          const [eh, em] = clampHour(...msToUtcHM(end), DAY_START_HOUR, DAY_END_HOUR);
           const startTime = toTimeString(sh, sm);
           const endTime = toTimeString(eh, em);
           if (startTime === endTime) return null;
-          const color = labelColorMap[event.label] ?? DEFAULT_COLOR;
-          const isDragging = dragState?.id === event.id;
-          const isResizing = resizeTarget?.id === event.id;
-          const layout = eventLayouts.get(event.id);
+          const color = labelColorMap[getEventLabelId(event)] ?? DEFAULT_COLOR;
+          const isDragging = dragState?.id === eventId;
+          const isResizing = resizeTarget?.id === eventId;
+          const layout = eventLayouts.get(eventId);
           const overlapStyle: React.CSSProperties =
             layout && layout.totalCols > 1
               ? {
@@ -269,14 +279,14 @@ export const DayColumn = ({
               : {};
           return (
             <DayEventCard
-              key={event.id}
+              key={eventId}
               event={{
-                id: event.id,
-                title: event.name,
+                id: eventId,
+                title: event.title,
                 date: dateStr,
                 startTime,
                 endTime,
-                description: event.notes || undefined,
+                description: event.description,
               }}
               color={color}
               offsetTop={timeToOffset(startTime, DAY_START_HOUR, DAY_HOUR_HEIGHT)}
