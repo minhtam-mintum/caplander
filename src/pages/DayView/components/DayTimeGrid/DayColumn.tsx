@@ -18,7 +18,7 @@ import type { DayDragState } from './types';
 import {
   getEventEndMs,
   getEventId,
-  getEventLabelId,
+  getResolvedEventLabelColor,
   getEventStartMs,
   withEventTime,
 } from 'app/utils/event';
@@ -194,7 +194,7 @@ export const DayColumn = ({
             title={src.title}
             startTime={pStart}
             endTime={pEnd}
-            color={labelColorMap[getEventLabelId(src)] ?? DEFAULT_COLOR}
+            color={getResolvedEventLabelColor(src, labelColorMap, DEFAULT_COLOR)}
             offsetTop={timeToOffset(pStart, DAY_START_HOUR, DAY_HOUR_HEIGHT)}
             height={durationToHeight(pStart, pEnd, DAY_HOUR_HEIGHT)}
             className='pointer-events-none z-20 ring-2 ring-inset ring-current'
@@ -223,7 +223,7 @@ export const DayColumn = ({
             title={src.title}
             startTime={pStart}
             endTime={pEnd}
-            color={labelColorMap[getEventLabelId(src)] ?? DEFAULT_COLOR}
+            color={getResolvedEventLabelColor(src, labelColorMap, DEFAULT_COLOR)}
             offsetTop={timeToOffset(pStart, DAY_START_HOUR, DAY_HOUR_HEIGHT)}
             height={durationToHeight(pStart, pEnd, DAY_HOUR_HEIGHT)}
             className='pointer-events-none z-20 ring-2 ring-inset ring-current'
@@ -265,7 +265,7 @@ export const DayColumn = ({
           const startTime = toTimeString(sh, sm);
           const endTime = toTimeString(eh, em);
           if (startTime === endTime) return null;
-          const color = labelColorMap[getEventLabelId(event)] ?? DEFAULT_COLOR;
+          const color = getResolvedEventLabelColor(event, labelColorMap, DEFAULT_COLOR);
           const isDragging = dragState?.id === eventId;
           const isResizing = resizeTarget?.id === eventId;
           const layout = eventLayouts.get(eventId);
