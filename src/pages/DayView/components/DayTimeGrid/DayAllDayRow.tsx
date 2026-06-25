@@ -6,7 +6,7 @@ import type { IEvent } from 'app/store/slices/eventSlice';
 import { ALL_DAY_GAP, ALL_DAY_PAD, ALL_DAY_ROW_H, DEFAULT_COLOR } from 'app/pages/WeekView/const';
 import { DAY_MS } from 'app/pages/MonthView/utils';
 import type { DayDragState } from './types';
-import { getEventId, getEventLabelId, withEventTime } from 'app/utils/event';
+import { getEventId, getResolvedEventLabelColor, withEventTime } from 'app/utils/event';
 
 interface IDayAllDayRowProps {
   dateStr: string;
@@ -82,7 +82,7 @@ export const DayAllDayRow = ({
       <div className='flex flex-col' style={{ gap: ALL_DAY_GAP, padding: ALL_DAY_PAD }}>
         {allDayEvents.map((event) => {
           const eventId = getEventId(event);
-          const color = labelColorMap[getEventLabelId(event)] ?? DEFAULT_COLOR;
+          const color = getResolvedEventLabelColor(event, labelColorMap, DEFAULT_COLOR);
           const isDragging = dragState?.id === eventId;
           return (
             <div
