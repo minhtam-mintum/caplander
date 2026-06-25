@@ -11,7 +11,7 @@ import type { DragInfo } from 'app/pages/WeekView/types';
 import {
   getEventEndMs,
   getEventId,
-  getEventLabelId,
+  getResolvedEventLabelColor,
   getEventStartMs,
   withEventTime,
 } from 'app/utils/event';
@@ -163,7 +163,7 @@ export const AllDayRow = ({
         }}>
         {allDayLayout.visibleBars.map((bar, bi) => {
           const eventId = getEventId(bar.ev);
-          const color = labelColorMap[getEventLabelId(bar.ev)] ?? DEFAULT_COLOR;
+          const color = getResolvedEventLabelColor(bar.ev, labelColorMap, DEFAULT_COLOR);
           const isDragging = dragInfo?.id === eventId;
           return (
             <div

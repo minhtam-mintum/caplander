@@ -47,11 +47,16 @@ let _refreshToken: string | null = null;
 let _refreshPromise: Promise<void> | null = null;
 let _onTokensRefreshed: ((tokens: { accessToken: string; refreshToken: string }) => void) | null =
   null;
+let _onSessionExpired: (() => void) | null = null;
 
 export function setOnTokensRefreshed(
   cb: (tokens: { accessToken: string; refreshToken: string }) => void,
 ) {
   _onTokensRefreshed = cb;
+}
+
+export function setOnSessionExpired(cb: (() => void) | null) {
+  _onSessionExpired = cb;
 }
 
 export function initTokens(accessToken: string, refreshToken: string) {
@@ -75,6 +80,7 @@ async function doRefresh(): Promise<void> {
   });
   if (!res.ok) {
     clearTokens();
+    _onSessionExpired?.();
     throw new Error('Session expired');
   }
   const data = (await res.json()) as { accessToken: string; refreshToken: string };

@@ -19,7 +19,7 @@ export function getEventAlert(event: IEvent): number {
   return event.alert ?? 0;
 }
 
-export function getEventLabelId(event: IEvent): string {
+function getEventLabelId(event: IEvent): string {
   const { labelId } = event;
   if (!labelId) return '';
   return typeof labelId === 'string' ? labelId : labelId._id;
@@ -31,6 +31,14 @@ export function getEventLabelName(event: IEvent): string | undefined {
 
 export function getEventLabelColor(event: IEvent): string | undefined {
   return typeof event.labelId === 'object' ? event.labelId.color : undefined;
+}
+
+export function getResolvedEventLabelColor(
+  event: IEvent,
+  labelColorMap: Record<string, string>,
+  fallbackColor: string,
+): string {
+  return getEventLabelColor(event) ?? labelColorMap[getEventLabelId(event)] ?? fallbackColor;
 }
 
 export function withEventTime(event: IEvent, startMs: number, endMs: number): IEvent {
