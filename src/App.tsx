@@ -2,13 +2,14 @@ import { useEffect, useRef } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from 'app/store';
 import { AppHeader } from 'app/components/organisms/AppHeader';
+import { SessionExpiredModal } from 'app/components/organisms/SessionExpiredModal';
 import { useNotifications } from 'app/hooks/useNotifications';
 import { ROUTES } from 'app/constants/route';
 import { fetchEventsThunk } from 'app/store/slices/eventSlice';
 
 function App() {
   useNotifications();
-  const { user, isAnonymous } = useAppSelector((s) => s.auth);
+  const { user, isAnonymous, sessionExpired } = useAppSelector((s) => s.auth);
   const dispatch = useAppDispatch();
   const loadedForUser = useRef<string | null>(null);
 
@@ -27,6 +28,14 @@ function App() {
       }),
     );
   }, [user, dispatch]);
+
+  if (sessionExpired) {
+    return (
+      <div className='min-h-dvh bg-background'>
+        <SessionExpiredModal />
+      </div>
+    );
+  }
 
   if (!user && !isAnonymous) {
     return <Navigate to={ROUTES.LOGIN} replace />;

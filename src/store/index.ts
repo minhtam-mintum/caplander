@@ -2,7 +2,7 @@ import { configureStore, type Middleware } from '@reduxjs/toolkit';
 import { useDispatch, useSelector, type TypedUseSelectorHook } from 'react-redux';
 import eventReducer, { removeEvent, setEvents } from './slices/eventSlice';
 import notificationReducer, { NOTIFICATION_READ_KEY } from './slices/notificationSlice';
-import authReducer, { AUTH_STORAGE_KEY, logout, updateTokens } from './slices/authSlice';
+import authReducer, { AUTH_STORAGE_KEY, expireSession, updateTokens } from './slices/authSlice';
 import labelReducer, { setLabels } from './slices/labelSlice';
 import { apiDeleteEvent, setOnSessionExpired, setOnTokensRefreshed } from 'app/services/api';
 
@@ -55,7 +55,7 @@ setOnTokensRefreshed(({ accessToken, refreshToken }) => {
 });
 
 setOnSessionExpired(() => {
-  store.dispatch(logout());
+  store.dispatch(expireSession());
 });
 
 store.subscribe(() => {

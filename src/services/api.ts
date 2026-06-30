@@ -78,10 +78,18 @@ async function doRefresh(): Promise<void> {
       Authorization: `Bearer ${_refreshToken}`,
     },
   });
-  if (!res.ok) {
+  if (res.status === 401) {
     clearTokens();
     _onSessionExpired?.();
     throw new Error('Session expired');
+  }
+  if (!res.ok) {
+    let message = 'Unable to refresh session';
+    try {
+      const body = (await res.json()) as { message?: string };
+      if (body.message) message = body.message;
+    } catch {}
+    throw new Error(message);
   }
   const data = (await res.json()) as { accessToken: string; refreshToken: string };
   _accessToken = data.accessToken;
@@ -108,8 +116,11 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       await _refreshPromise;
       if (_accessToken) headers['Authorization'] = `Bearer ${_accessToken}`;
       res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
-    } catch {
-      throw new Error('Session expired. Please log in again.');
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Session expired') {
+        throw new Error('Session expired. Please log in again.');
+      }
+      throw error;
     }
   }
 

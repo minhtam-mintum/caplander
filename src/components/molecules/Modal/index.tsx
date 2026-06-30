@@ -16,10 +16,25 @@ interface IModalProps {
     renderFooter: (content: ReactNode) => ReactNode,
   ) => ReactNode;
   className?: string;
+  dismissible?: boolean;
+  initiallyOpen?: boolean;
+  ariaLabel?: string;
+  dialogRole?: 'dialog' | 'alertdialog';
 }
 
-export const Modal = forwardRef<IModalHandle, IModalProps>(function Modal({ onClose, render, className }, ref) {
-  const [isOpen, setIsOpen] = useState(false);
+export const Modal = forwardRef<IModalHandle, IModalProps>(function Modal(
+  {
+    onClose,
+    render,
+    className,
+    dismissible = true,
+    initiallyOpen = false,
+    ariaLabel,
+    dialogRole = 'dialog',
+  },
+  ref,
+) {
+  const [isOpen, setIsOpen] = useState(initiallyOpen);
 
   useImperativeHandle(ref, () => ({
     open: () => setIsOpen(true),
@@ -32,11 +47,11 @@ export const Modal = forwardRef<IModalHandle, IModalProps>(function Modal({ onCl
   }, [onClose]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !dismissible) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [isOpen, handleClose]);
+  }, [dismissible, isOpen, handleClose]);
 
   useEffect(() => {
     if (isOpen) {
@@ -49,11 +64,11 @@ export const Modal = forwardRef<IModalHandle, IModalProps>(function Modal({ onCl
     <>
       <div className='flex items-center gap-3 px-6 py-5'>
         {content}
-        <DismissButton onClick={handleClose} />
+        {dismissible && <DismissButton onClick={handleClose} />}
       </div>
       <div className='h-px bg-outline-variant' />
     </>
-  ), [handleClose]);
+  ), [dismissible, handleClose]);
 
   const renderFooter = useCallback((content: ReactNode) => (
     <>
@@ -66,8 +81,16 @@ export const Modal = forwardRef<IModalHandle, IModalProps>(function Modal({ onCl
 
   return createPortal(
     <div className='fixed inset-0 z-50 flex items-center justify-center p-4'>
-      <div className='absolute inset-0 bg-black/40 backdrop-blur-sm' onClick={handleClose} />
-      <div className={cn('relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[calc(100vh-2rem)]', className)}>
+      <div
+        className='absolute inset-0 bg-black/40 backdrop-blur-sm'
+        onClick={dismissible ? handleClose : undefined}
+      />
+      <div
+        role={dialogRole}
+        aria-modal='true'
+        aria-label={ariaLabel}
+        className={cn('relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[calc(100dvh-2rem)]', className)}
+      >
         {render(renderHeader, renderFooter)}
       </div>
     </div>,

@@ -66,4 +66,36 @@ describe('api token refresh', () => {
       }),
     );
   });
+
+  it('keeps the session when refresh fails with a non-401 response', async () => {
+    const onSessionExpired = vi.fn();
+    initTokens('expired-access', 'refresh-token');
+    setOnSessionExpired(onSessionExpired);
+
+    fetchMock
+      .mockResolvedValueOnce(new Response(null, { status: 401 }))
+      .mockResolvedValueOnce(jsonResponse({ message: 'Refresh unavailable' }, { status: 500 }))
+      .mockResolvedValueOnce(
+        jsonResponse<IUser>(
+          { _id: 'u1', userId: 'testuser', name: 'Test User' },
+          { status: 200 },
+        ),
+      );
+
+    await expect(apiGetMe()).rejects.toThrow('Refresh unavailable');
+    expect(onSessionExpired).not.toHaveBeenCalled();
+
+    await expect(apiGetMe()).resolves.toEqual({
+      _id: 'u1',
+      userId: 'testuser',
+      name: 'Test User',
+    });
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      expect.stringContaining('/users/me'),
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: 'Bearer expired-access' }),
+      }),
+    );
+  });
 });

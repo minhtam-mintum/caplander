@@ -8,6 +8,7 @@ interface IAuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAnonymous: boolean;
+  sessionExpired: boolean;
 }
 
 interface ISetAuthPayload {
@@ -19,17 +20,37 @@ interface ISetAuthPayload {
 function loadAuth(): IAuthState {
   try {
     const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-    if (!stored) return { user: null, accessToken: null, refreshToken: null, isAnonymous: false };
+    if (!stored) {
+      return {
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAnonymous: false,
+        sessionExpired: false,
+      };
+    }
     const parsed = JSON.parse(stored) as IAuthState;
     if (parsed.isAnonymous) {
-      return { user: null, accessToken: null, refreshToken: null, isAnonymous: true };
+      return {
+        user: null,
+        accessToken: null,
+        refreshToken: null,
+        isAnonymous: true,
+        sessionExpired: false,
+      };
     }
     if (parsed.user && parsed.accessToken && parsed.refreshToken) {
       initTokens(parsed.accessToken, parsed.refreshToken);
-      return parsed;
+      return { ...parsed, sessionExpired: false };
     }
   } catch {}
-  return { user: null, accessToken: null, refreshToken: null, isAnonymous: false };
+  return {
+    user: null,
+    accessToken: null,
+    refreshToken: null,
+    isAnonymous: false,
+    sessionExpired: false,
+  };
 }
 
 const authSlice = createSlice({
@@ -42,12 +63,14 @@ const authSlice = createSlice({
       state.accessToken = accessToken;
       state.refreshToken = refreshToken;
       state.isAnonymous = false;
+      state.sessionExpired = false;
     },
     setAnonymous: (state) => {
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
       state.isAnonymous = true;
+      state.sessionExpired = false;
       clearTokens();
     },
     logout: (state) => {
@@ -55,6 +78,15 @@ const authSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
       state.isAnonymous = false;
+      state.sessionExpired = false;
+      clearTokens();
+    },
+    expireSession: (state) => {
+      state.user = null;
+      state.accessToken = null;
+      state.refreshToken = null;
+      state.isAnonymous = false;
+      state.sessionExpired = true;
       clearTokens();
     },
     updateUser: (state, action: PayloadAction<IUser>) => {
@@ -63,9 +95,11 @@ const authSlice = createSlice({
     updateTokens: (state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) => {
       state.accessToken = action.payload.accessToken;
       state.refreshToken = action.payload.refreshToken;
+      state.sessionExpired = false;
     },
   },
 });
 
-export const { setAuth, setAnonymous, logout, updateTokens, updateUser } = authSlice.actions;
+export const { setAuth, setAnonymous, logout, expireSession, updateTokens, updateUser } =
+  authSlice.actions;
 export default authSlice.reducer;
